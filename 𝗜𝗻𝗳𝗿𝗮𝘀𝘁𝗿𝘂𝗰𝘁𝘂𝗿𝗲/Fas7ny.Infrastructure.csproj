@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>______________</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Fas7ny.Application.csproj" />
+    <ProjectReference Include="..\𝗗𝗼𝗺𝗮𝗶𝗻\Fas7ny.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

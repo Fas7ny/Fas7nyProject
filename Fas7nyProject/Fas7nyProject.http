@@ -1,0 +1,6 @@
+@Fas7nyProject_HostAddress = http://localhost:5275
+
+GET {{Fas7nyProject_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
