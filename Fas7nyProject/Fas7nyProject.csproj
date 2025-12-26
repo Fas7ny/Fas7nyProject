@@ -8,10 +8,21 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Fas7ny.Application.csproj" />
+    <ProjectReference Include="..\Presentation\Fas7ny.Presentation.csproj" />
+    <ProjectReference Include="..\𝗗𝗼𝗺𝗮𝗶𝗻\Fas7ny.Domain.csproj" />
+    <ProjectReference Include="..\𝗜𝗻𝗳𝗿𝗮𝘀𝘁𝗿𝘂𝗰𝘁𝘂𝗿𝗲\Fas7ny.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
