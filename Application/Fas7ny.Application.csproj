@@ -6,12 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Query\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\𝗗𝗼𝗺𝗮𝗶𝗻\Fas7ny.Domain.csproj" />
-  </ItemGroup>
-
 </Project>
