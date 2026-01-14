@@ -1,6 +1,5 @@
 
 using Microsoft.EntityFrameworkCore;
-using System;
 using TourismApp.Data;
 
 namespace Fas7nyProject
@@ -15,12 +14,12 @@ namespace Fas7nyProject
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-                    builder.Services.AddOpenApi();
-                    builder.Services.AddDbContext<TourismDbContext>(options =>
-            options.UseNpgsql(
-                builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? Environment.GetEnvironmentVariable("DB_CONNECTION")
-    ));
+            builder.Services.AddOpenApi();
+            builder.Services.AddDbContext<TourismDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+?? Environment.GetEnvironmentVariable("DB_CONNECTION")
+));
 
 
             var app = builder.Build();

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Fas7ny.Application.DTOs.Activity.Request
+﻿namespace Fas7ny.Application.DTOs.Activity.Request
 {
-    internal class CreateActivityRequestDTO
+    public class CreateActivityRequestDTO
     {
+        public string ActivityId { get; set; }
+        public string ActivityName { get; set; }
+        public string Description { get; set; }
+        public string ActivityType { get; set; } = string.Empty;
+
+
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Fas7ny.Domain.Entities.Transpotrations
+﻿namespace Fas7ny.Domain.Entities.Transpotrations
 {
     public class Bus : Transportations
     {
