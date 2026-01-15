@@ -1,9 +1,11 @@
 ﻿namespace Fas7ny.Application.DTOs.SearchLog.Response
 {
-    public class SearchResultDto
+    public class SearchResultResponseDTO
     {
-        public string Keyword { get; set; }
-        public DateTime SearchedAt { get; set; }
+        public List<object> Results { get; set; }
+        public int TotalCount { get; set; }
+        public string SearchCategory { get; set; }
+        public string SearchTerm { get; set; }
     }
 
 }

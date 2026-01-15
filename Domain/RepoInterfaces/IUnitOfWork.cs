@@ -1,0 +1,43 @@
+﻿using Fas7ny.Domain.Entities;
+using Fas7ny.Domain.Entities.Transpotrations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Fas7ny.Domain.RepoInterfaces
+{
+    public interface IUnitOfWork : IDisposable
+    {
+        // Repository Properties - تضيف Repository لكل Entity
+        IGenericRepository<Activity> Activities { get; }
+        IGenericRepository<Booking> Bookings { get; }
+        IGenericRepository<ChatMessage> ChatMessages { get; }
+        IGenericRepository<City> Cities { get; }
+        IGenericRepository<Country> Countries { get; }
+        IGenericRepository<Destination> Destinations { get; }
+        IGenericRepository<Hotel> Hotels { get; }
+        IGenericRepository<HotelRoom> HotelRooms { get; }
+        IGenericRepository<Package> Packages { get; }
+        IGenericRepository<Recommendation> Recommendations { get; }
+        IGenericRepository<Restaurant> Restaurants { get; }
+        IGenericRepository<SearchLog> SearchLogs { get; }
+        IGenericRepository<TouristPlace> TouristPlaces { get; }
+        IGenericRepository<Bus> Buses { get; }
+        IGenericRepository<Flight> Flights { get; }
+
+        // Generic method to get any repository
+        IGenericRepository<T> Repository<T>() where T : class;
+
+        // Save Changes
+        Task<int> SaveChangesAsync();
+        int SaveChanges();
+
+        // Transaction Management
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
+    }
+
+}

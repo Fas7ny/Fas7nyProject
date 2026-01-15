@@ -8,11 +8,11 @@ namespace Fas7ny.Application.DTOs.City.Response
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Country { get; set; }
+        public int CountryId { get; set; }
+        public string CountryName { get; set; }
         public string Description { get; set; }
         public string ImageUrl { get; set; }
-        public List<HotelDto> Hotels { get; set; }
-        public List<RestaurantResponseDTO> Restaurants { get; set; }
-        public List<TouristPlaceResponseDTO> TouristPlaces { get; set; }
+        public int TouristPlaceCount { get; set; }
     }
+
 }

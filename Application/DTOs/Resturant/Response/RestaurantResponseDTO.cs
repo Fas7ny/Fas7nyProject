@@ -5,12 +5,12 @@ namespace Fas7ny.Application.DTOs.Resturant.Response
     public class RestaurantResponseDTO
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string? Cuisine { get; set; }
-        public string? Description { get; set; }
-        public string? PriceRange { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
         public int CityId { get; set; }
-
-        public virtual CreateCityRequestDTO City { get; set; } = null!;
+        public string CityName { get; set; }
+        public string CuisineType { get; set; }
+        public decimal Rating { get; set; }
+        public string PhoneNumber { get; set; }
     }
 }

@@ -2,11 +2,11 @@
 {
     public class BusDtoResponseDTO
     {
-        public string Company { get; set; }
-        public string From { get; set; }
-        public string To { get; set; }
-        public DateTime DepartureTime { get; set; }
-
-        public DateTime ArivaTime { get; set; }
+        public int Id { get; set; }
+        public string BusNumber { get; set; }
+        public string OperatorName { get; set; }
+        public int Capacity { get; set; }
+        public string BusType { get; set; }
+        public bool IsActive { get; set; }
     }
 }

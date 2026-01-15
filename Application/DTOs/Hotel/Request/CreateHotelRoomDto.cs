@@ -2,10 +2,10 @@
 
 namespace Fas7ny.Application.DTOs.Hotel.Request
 {
-    public class CreateHotelRoomDto
+    public class CreateHotelRoomDTO
     {
         [Required(ErrorMessage = "Hotel ID is required")]
-        [Range(1, int.MaxValue, ErrorMessage = "Valid hotel ID is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "Valid Hotel ID is required")]
         public int HotelId { get; set; }
 
         [Required(ErrorMessage = "Room type is required")]
@@ -13,13 +13,14 @@ namespace Fas7ny.Application.DTOs.Hotel.Request
         public string RoomType { get; set; }
 
         [Required(ErrorMessage = "Capacity is required")]
-        [Range(1, 20, ErrorMessage = "Capacity must be between 1 and 20")]
+        [Range(1, 10, ErrorMessage = "Capacity must be between 1 and 10")]
         public int Capacity { get; set; }
 
-        [Required(ErrorMessage = "Price is required")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0")]
-        public decimal Price { get; set; }
+        [Required(ErrorMessage = "Price per night is required")]
+        [Range(0, double.MaxValue, ErrorMessage = "Price must be greater than or equal to 0")]
+        public decimal PricePerNight { get; set; }
 
-        public bool Available { get; set; } = true;
+        [Required(ErrorMessage = "Availability status is required")]
+        public bool IsAvailable { get; set; }
     }
 }

@@ -5,22 +5,27 @@ namespace Fas7ny.Application.DTOs.Resturant.Request
     public class CreateRestaurantRequestDTO
     {
         [Required(ErrorMessage = "Restaurant name is required")]
-        [StringLength(200, ErrorMessage = "Restaurant name cannot exceed 200 characters")]
+        [StringLength(100, ErrorMessage = "Restaurant name cannot exceed 100 characters")]
         public string Name { get; set; }
 
-        [StringLength(100, ErrorMessage = "Cuisine cannot exceed 100 characters")]
-        public string Cuisine { get; set; }
-
-        [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
-        public string Description { get; set; }
-
-        [RegularExpression(@"^\$+$", ErrorMessage = "Price range must be $, $$, $$$, or $$$$")]
-        [StringLength(4, ErrorMessage = "Price range cannot exceed 4 characters")]
-        public string PriceRange { get; set; }
+        [Required(ErrorMessage = "Address is required")]
+        [StringLength(200, ErrorMessage = "Address cannot exceed 200 characters")]
+        public string Address { get; set; }
 
         [Required(ErrorMessage = "City ID is required")]
-        [Range(1, int.MaxValue, ErrorMessage = "Valid city ID is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "Valid City ID is required")]
         public int CityId { get; set; }
+
+        [Required(ErrorMessage = "Cuisine type is required")]
+        [StringLength(50, ErrorMessage = "Cuisine type cannot exceed 50 characters")]
+        public string CuisineType { get; set; }
+
+        [Range(0, 5, ErrorMessage = "Rating must be between 0 and 5")]
+        public decimal Rating { get; set; }
+
+        [Phone(ErrorMessage = "Invalid phone number format")]
+        [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
+        public string PhoneNumber { get; set; }
     }
 
 }

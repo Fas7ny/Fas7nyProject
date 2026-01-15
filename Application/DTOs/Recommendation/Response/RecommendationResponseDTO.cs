@@ -2,14 +2,15 @@
 
 namespace Fas7ny.Application.DTOs.Recommendation.Response
 {
-    public class RecommendationResponseDTO
+    public class RecommendationDTO
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public string RecommendedItemType { get; set; } = string.Empty;
-        public int ItemId { get; set; }
-        public string? Reason { get; set; }
-
-        public virtual UserResponseDto User { get; set; } = null!;
+        public int DestinationId { get; set; }
+        public string DestinationName { get; set; }
+        public string RecommendationType { get; set; }
+        public decimal Score { get; set; }
+        public string Reason { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
