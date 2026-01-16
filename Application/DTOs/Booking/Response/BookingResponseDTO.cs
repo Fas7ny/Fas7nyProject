@@ -1,6 +1,4 @@
-﻿using Fas7ny.Application.DTOs.Account.Response;
-
-namespace Fas7ny.Application.DTOs.Booking.Response
+﻿namespace Fas7ny.Application.DTOs.Booking.Response
 {
     public class BookingResponseDTO
     {

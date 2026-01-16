@@ -1,6 +1,4 @@
-﻿using Fas7ny.Application.DTOs.Account.Response;
-
-namespace Fas7ny.Application.DTOs.Recommendation.Response
+﻿namespace Fas7ny.Application.DTOs.Recommendation.Response
 {
     public class RecommendationDTO
     {

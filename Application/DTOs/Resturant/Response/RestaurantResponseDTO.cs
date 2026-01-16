@@ -1,6 +1,4 @@
-﻿using Fas7ny.Application.DTOs.City.Request;
-
-namespace Fas7ny.Application.DTOs.Resturant.Response
+﻿namespace Fas7ny.Application.DTOs.Resturant.Response
 {
     public class RestaurantResponseDTO
     {
