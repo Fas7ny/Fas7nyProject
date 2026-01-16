@@ -2,7 +2,7 @@
 
 namespace Fas7ny.Application.DTOs.Transportations.FlightDtos.Request
 {
-   public class CreateFlightRequestDTO
+    public class CreateFlightRequestDTO
     {
         [Required(ErrorMessage = "Flight number is required")]
         [StringLength(20, ErrorMessage = "Flight number cannot exceed 20 characters")]

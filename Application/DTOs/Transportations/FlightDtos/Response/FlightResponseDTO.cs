@@ -14,5 +14,5 @@
         public decimal Price { get; set; }
         public int AvailableSeats { get; set; }
         public TimeSpan Duration { get; set; }
-    }   
+    }
 }

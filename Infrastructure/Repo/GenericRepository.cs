@@ -1,15 +1,16 @@
 ﻿using Fas7ny.Domain.RepoInterfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using TourismApp.Data;
 
 namespace Fas7ny.Domain.Repo
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        protected readonly DbContext _context;
-        protected readonly DbSet<T> _dbSet;
+        private readonly TourismDbContext _context;
+        private readonly DbSet<T> _dbSet;
 
-        public GenericRepository(DbContext context)
+        public GenericRepository(TourismDbContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();

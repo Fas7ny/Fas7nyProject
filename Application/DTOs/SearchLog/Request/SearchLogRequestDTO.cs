@@ -1,5 +1,4 @@
-﻿using Fas7ny.Application.DTOs.Account.Response;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Fas7ny.Application.DTOs.SearchLog.Request
 {
