@@ -2,11 +2,6 @@
 using Fas7ny.Domain.Entities.Transpotrations;
 using Fas7ny.Domain.Repo;
 using Fas7ny.Domain.RepoInterfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TourismApp.Data;
 
 namespace Fas7ny.Infrastructure.Repo
