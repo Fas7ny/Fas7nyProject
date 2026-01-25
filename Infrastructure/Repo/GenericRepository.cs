@@ -147,6 +147,11 @@ namespace Fas7ny.Domain.Repo
 
             return (items, totalCount);
         }
+
+        public Task<IEnumerable<T>> FindAsync(string searchTerm, Expression<Func<T, bool>> predicate)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

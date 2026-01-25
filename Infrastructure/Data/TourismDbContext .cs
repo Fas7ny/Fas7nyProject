@@ -1,10 +1,12 @@
 ﻿using Fas7ny.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace TourismApp.Data
 {
-    public class TourismDbContext : DbContext
+    public class TourismDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         public TourismDbContext(DbContextOptions<TourismDbContext> options)
             : base(options)
@@ -13,6 +15,8 @@ namespace TourismApp.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<HotelRoom> HotelRooms { get; set; }
         public DbSet<Restaurant> Restaurants { get; set; }
