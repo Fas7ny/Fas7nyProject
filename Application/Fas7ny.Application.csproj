@@ -8,10 +8,20 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Fas7ny.Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Fas7ny.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="DTOs\Package\Response\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="4.0.3.10" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
+    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="18.0.1" />
   </ItemGroup>
 
 </Project>

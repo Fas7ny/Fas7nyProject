@@ -7,7 +7,7 @@ namespace Fas7ny.Domain.RepoInterfaces
         // Get Operations
         Task<T> GetByIdAsync(int id);
         Task<IEnumerable<T>> GetAllAsync();
-        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> FindAsync(string searchTerm, Expression<Func<T, bool>> predicate);
         Task<T> FindSingleAsync(Expression<Func<T, bool>> predicate);
 
         // Get with includes
