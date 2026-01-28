@@ -1,5 +1,5 @@
-﻿using Fas7ny.Application.Services.JwtService.Security;
-using Fas7ny.Application.Services.JwtService.Settings;
+﻿using Fas7ny.Application.Services.JwtService.Settings;
+using Fas7ny.Application.ServivesInterfaces;
 using Fas7ny.Domain.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
