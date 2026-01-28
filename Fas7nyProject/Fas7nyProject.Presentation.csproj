@@ -9,34 +9,38 @@
 
 	<ItemGroup>
 		<PackageReference Include="DotNetEnv" Version="3.1.1" />
-		<PackageReference Include="MediatR" Version="9.0.0" />
-		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.11" />
+
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.11">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>
 				runtime; build; native; contentfiles; analyzers; buildtransitive
 			</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="SwaggerUi" Version="1.1.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.1" />
-		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.1" />
-		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.0" />
+
+		<PackageReference Include="OpenAI" Version="2.8.0" />
+
+		<!-- Swagger -->
+		<PackageReference Include="SwaggerUi" Version="1.1.0" PrivateAssets="all" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.1" PrivateAssets="all" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.1" PrivateAssets="all" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.0" PrivateAssets="all" />
+
+		
 	</ItemGroup>
 
 	<ItemGroup>
 		<!-- Application Layer -->
 		<ProjectReference Include="..\Application\Fas7ny.Application.csproj" />
 		<ProjectReference Include="..\Domain\Fas7ny.Domain.csproj" />
-
-		<!-- Infrastructure Layer -->
 		<ProjectReference Include="..\Infrastructure\Fas7ny.Infrastructure.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="wwwroot\" />
+		<Folder Include="wwwroot\" />
 	</ItemGroup>
 
 </Project>
