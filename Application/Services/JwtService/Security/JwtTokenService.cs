@@ -17,7 +17,7 @@ public class JwtTokenService : IJwtTokenService
         _jwt = jwt.Value;
     }
 
-    public string GenerateAccessToken(User user, IList<string> roles)
+    public string GenerateAccessToken(ApplicationUser user, IList<string> roles)
     {
         var claims = new List<Claim>
         {

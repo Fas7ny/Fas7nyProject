@@ -212,3 +212,82 @@ All rights reserved.
 
 ---
 # Use UserSecrets for sensitive data in development in secrets.json:(DbConnectionString, JWT Secret, etc.)
+
+
+# Relationship Diagram
+```plaintext```
++-------------------+
+// ============================================================================
+// RELATIONSHIP SUMMARY
+// ============================================================================
+
+/*
+RELATIONSHIP DIAGRAM:
+
+ApplicationUser (1) ────────── (1) Carts
+       │
+       ├──── (1:N) ────── Bookings
+       ├──── (1:N) ────── ChatMessages
+       ├──── (1:N) ────── SearchLogs
+       ├──── (1:N) ────── Recommendations
+       ├──── (1:N) ────── Reviews
+       ├──── (1:N) ────── UserInteractions
+       └──── (1:N) ────── UserPreferences
+
+Carts (1) ────────── (N) CartItems
+
+CartItems (N) ────────── (1) Booking
+
+Booking (1) ────────── (1) Payment
+
+Package (1) ────────── (N) Reviews
+
+City (1) ────────── (N) Hotels
+     (1) ────────── (N) Restaurants
+     (1) ────────── (N) TouristPlaces
+     (1) ────────── (N) Packages
+
+Hotel (1) ────────── (N) HotelRooms
+      (1) ────────── (N) Packages
+
+Package (1) ────────── (N) PackageDetails
+
+TouristPlace (1) ────────── (N) PackageDetails
+
+KEY RELATIONSHIPS:
+
+1. One-to-One:
+   - User ←→ Cart (Each user has one cart)
+   - Booking ←→ Payment (Each booking has one payment)
+
+2. One-to-Many:
+   - User → Bookings, Reviews, Interactions, Preferences
+   - Cart → CartItems
+   - Package → Reviews, PackageDetails
+   - City → Hotels, Restaurants, TouristPlaces, Packages
+
+3. Many-to-One:
+   - CartItems → Booking (Many cart items can reference same booking)
+   - Reviews → User, Package
+   - PackageDetails → Package, TouristPlace
+
+DELETE BEHAVIORS:
+   - Cascade: When parent deleted, children deleted (User → Cart, Cart → CartItems)
+   - Restrict: Prevents deletion if children exist (City → Hotels)
+   - SetNull: Sets FK to null when parent deleted (not used here)
+*/
+
+
+
+
+Geoapify-powered search service for tourism-related data (places, cities, attractions).
+
+-AI Services:
+     1) UserBehavior
+     Analyze user behavior and send a specific prompt to the AI to generate insights and recommendations that improve personalization and make user interaction smoothe
+     2) Ai Chat 
+     Enable conversational chat between the user and the AI using built-in classes and methods to provide real-time assistance, answer questions, and enhance user engagement
+     3) Generate Package 
+     Generate a complete tourism/travel package based on the user’s inputs (destination, budget, number of days, preferences), and return a structured plan (itinerary, activities, estimated cost, and notes) to help the user choose and book easily.
+     4) Recommendations
+     Provide personalized tourism recommendations based on user preferences, behavior, and interests (such as destinations, activities, hotels, or experiences) to help users discover the most relevant and appealing options quickly.

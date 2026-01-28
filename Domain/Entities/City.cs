@@ -8,9 +8,9 @@
         public string? Description { get; set; }
         public string? ImageUrl { get; set; }
 
-        public virtual ICollection<Hotel> Hotels { get; set; } = new List<Hotel>();
-        public virtual ICollection<Restaurant> Restaurants { get; set; } = new List<Restaurant>();
-        public virtual ICollection<TouristPlace> TouristPlaces { get; set; } = new List<TouristPlace>();
-        public virtual ICollection<Package> Packages { get; set; } = new List<Package>();
+        public ICollection<Hotel> Hotels { get; set; } = new List<Hotel>();
+        public ICollection<Restaurant> Restaurants { get; set; } = new List<Restaurant>();
+        public ICollection<TouristPlace> TouristPlaces { get; set; } = new List<TouristPlace>();
+        public ICollection<Package> Packages { get; set; } = new List<Package>();
     }
 }

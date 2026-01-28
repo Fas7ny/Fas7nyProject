@@ -21,7 +21,7 @@ namespace Fas7ny.Application.DTOs.Activity.Request
         public decimal Price { get; set; }
 
         [Required(ErrorMessage = "Duration is required")]
-        [Range(1, 1440, ErrorMessage = "Duration must be between 1 and 1440 minutes")]
+        [Range(1, 4, ErrorMessage = "Duration must be between 1 and 4 days")]
         public int Duration { get; set; }
 
         [Required(ErrorMessage = "Category is required")]
