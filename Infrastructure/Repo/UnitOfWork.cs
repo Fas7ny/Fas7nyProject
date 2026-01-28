@@ -1,4 +1,5 @@
 ﻿using Fas7ny.Domain.Entities;
+using Fas7ny.Domain.Entities.Fas7ny.Domain.Entities;
 using Fas7ny.Domain.Entities.Transpotrations;
 using Fas7ny.Domain.Repo;
 using Fas7ny.Domain.RepoInterfaces;
@@ -17,6 +18,7 @@ namespace Fas7ny.Infrastructure.Repo
         private IGenericRepository<ChatMessage> _chatMessages;
         private IGenericRepository<City> _cities;
         private IGenericRepository<Country> _countries;
+        private IGenericRepository<Category> _categories;
         private IGenericRepository<Destination> _destinations;
         private IGenericRepository<Hotel> _hotels;
         private IGenericRepository<HotelRoom> _hotelRooms;
@@ -37,6 +39,7 @@ namespace Fas7ny.Infrastructure.Repo
         // Repository Properties
         public IGenericRepository<Activity> Activities =>
             _activities ??= new GenericRepository<Activity>(_context);
+       
 
         public IGenericRepository<Booking> Bookings =>
             _bookings ??= new GenericRepository<Booking>(_context);
@@ -79,6 +82,9 @@ namespace Fas7ny.Infrastructure.Repo
 
         public IGenericRepository<Flight> Flights =>
             _flights ??= new GenericRepository<Flight>(_context);
+
+        public IGenericRepository<Category> Categories => 
+            _categories ??= new GenericRepository<Category>(_context);
 
         // Generic Repository Access
         public IGenericRepository<T> Repository<T>() where T : class

@@ -1,4 +1,5 @@
 ﻿using Fas7ny.Domain.Entities;
+using Fas7ny.Infrastructure.Data.SeedData;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +35,16 @@ namespace TourismApp.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            //Category
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.ToTable("categories");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
+                entity.Property(e => e.Name).HasColumnName("name").HasMaxLength(100).IsRequired();
+
+                entity.HasIndex(e => e.Name).IsUnique().HasDatabaseName("ix_categories_name");
+            });
 
             // User
             modelBuilder.Entity<ApplicationUser>(entity =>
@@ -79,7 +90,13 @@ namespace TourismApp.Data
                     .HasForeignKey(e => e.CityId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_hotels_cities");
-            });
+
+                   entity.HasOne(h => h.Category)
+                          .WithMany(c => c.Hotels)
+                          .HasForeignKey(h => h.CategoryId)
+                          .OnDelete(DeleteBehavior.Restrict)
+                          .HasConstraintName("fk_hotels_categories");
+               });
 
             // HotelRoom
             modelBuilder.Entity<HotelRoom>(entity =>
@@ -117,6 +134,12 @@ namespace TourismApp.Data
                     .HasForeignKey(e => e.CityId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_restaurants_cities");
+
+                entity.HasOne(r => r.Category)
+                      .WithMany(c => c.Restaurants)
+                      .HasForeignKey(r => r.CategoryId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .HasConstraintName("fk_restaurants_categories");
             });
 
             // TouristPlace
@@ -137,6 +160,12 @@ namespace TourismApp.Data
                     .HasForeignKey(e => e.CityId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_tourist_places_cities");
+
+                entity.HasOne(tp => tp.Category)
+                      .WithMany(c => c.TouristPlaces)
+                      .HasForeignKey(tp => tp.CategoryId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .HasConstraintName("fk_tourist_places_categories");
             });
 
             // Package
@@ -164,6 +193,12 @@ namespace TourismApp.Data
                     .HasForeignKey(e => e.HotelId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_packages_hotels");
+
+                entity.HasOne(p => p.Category)
+                      .WithMany(c => c.Packages)
+                      .HasForeignKey(p => p.CategoryId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .HasConstraintName("fk_packages_categories");
             });
 
             // PackageDetail
@@ -405,6 +440,8 @@ namespace TourismApp.Data
 
                 entity.HasIndex(e => new { e.CartId, e.BookingId }).IsUnique().HasDatabaseName("ix_cart_items_cart_booking");
             });
+            SeedData.Apply(modelBuilder);
+
         }
     }
 }
