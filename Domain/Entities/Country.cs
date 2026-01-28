@@ -1,18 +1,16 @@
 ﻿namespace Fas7ny.Domain.Entities
 {
-    public class Country
+    namespace Fas7ny.Domain.Entities
     {
-        public Guid Id { get; private set; }
-        public string Name { get; private set; }
-        public string Currency { get; private set; }
-
-        private Country() { }
-
-        public Country(string name, string currency)
+        public class Country
         {
-            Id = Guid.NewGuid();
-            Name = name;
-            Currency = currency;
+            public int Id { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string Code { get; set; } = string.Empty;
+            public bool IsActive { get; set; }
+
+            // Navigation
+            public ICollection<City> Cities { get; set; } = new List<City>();
         }
     }
 
