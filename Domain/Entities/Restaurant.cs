@@ -8,7 +8,8 @@
         public string? Description { get; set; }
         public string? PriceRange { get; set; }
         public int CityId { get; set; }
-
+        public int CategoryId { get; set; }
+        public Category Category { get; set; } = null!;
         public virtual City City { get; set; } = null!;
     }
 }

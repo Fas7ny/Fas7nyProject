@@ -12,7 +12,7 @@ namespace Fas7ny.Domain.Entities
         public decimal Budget { get; set; }
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public Category CategoryPreference { get; set; }
+        public CategoryEnum CategoryPreference { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public ApplicationUser User { get; set; }

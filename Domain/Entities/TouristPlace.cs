@@ -9,7 +9,8 @@
         public string? OpeningHours { get; set; }
         public decimal EntryFee { get; set; }
         public int CityId { get; set; }
-
+        public int CategoryId { get; set; }
+        public Category Category { get; set; } = null!;
         public virtual City City { get; set; } = null!;
         public virtual ICollection<PackageDetail> PackageDetails { get; set; } = new List<PackageDetail>();
     }

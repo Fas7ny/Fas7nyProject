@@ -1,6 +1,6 @@
 ﻿namespace Fas7ny.Enum
 {
-    public enum Category
+    public enum CategoryEnum
     {
 
         Historical,

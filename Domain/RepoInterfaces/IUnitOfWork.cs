@@ -1,4 +1,5 @@
 ﻿using Fas7ny.Domain.Entities;
+using Fas7ny.Domain.Entities.Fas7ny.Domain.Entities;
 using Fas7ny.Domain.Entities.Transpotrations;
 
 namespace Fas7ny.Domain.RepoInterfaces
@@ -11,6 +12,7 @@ namespace Fas7ny.Domain.RepoInterfaces
         IGenericRepository<ChatMessage> ChatMessages { get; }
         IGenericRepository<City> Cities { get; }
         IGenericRepository<Country> Countries { get; }
+        IGenericRepository<Category> Categories { get; }
         IGenericRepository<Destination> Destinations { get; }
         IGenericRepository<Hotel> Hotels { get; }
         IGenericRepository<HotelRoom> HotelRooms { get; }
