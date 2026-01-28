@@ -14,6 +14,7 @@
         public virtual City City { get; set; } = null!;
         public virtual Hotel Hotel { get; set; } = null!;
         public virtual ICollection<PackageDetail> PackageDetails { get; set; } = new List<PackageDetail>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 
 }

@@ -1,8 +1,13 @@
-﻿using Fas7ny.Application.Services.JwtService.Extensions;
+﻿using Fas7ny.Application.Options;
+using Fas7ny.Application.Services.AlogailaSearche;
+using Fas7ny.Application.Services.JwtService.Extensions;
 using Fas7ny.Application.Services.JwtService.Settings;
+using Fas7ny.Application.Services.MapboxSearchService;
+using Fas7ny.Application.Services.OpenAiService;
 using Fas7ny.Domain.Entities;
 using Fas7ny.Domain.Repo;
 using Fas7ny.Domain.RepoInterfaces;
+using Fas7ny.Infrastructure.ExternalApis;
 using Fas7ny.Infrastructure.Repo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +28,24 @@ namespace Fas7nyProject
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            //GeoApiSearch
+            builder.Services.Configure<GeoapifyOptions>(
+            builder.Configuration.GetSection("Geoapify"));
+            builder.Services.AddHttpClient<IGeoapifySearchService, GeoapifySearchService>();
+
+            //MapBoxService
+            builder.Services.Configure<MapboxOptions>(
+            builder.Configuration.GetSection("Mapbox"));
+            builder.Services.AddHttpClient<IMapboxSearchService, MapboxSearchService>();
+
+            //openaiService
+            builder.Services.Configure<OpenAIOptions>(
+            builder.Configuration.GetSection("OpenAI"));
+            builder.Services.AddHttpClient<IAiService, AiService>();
+
+
+
+
             // DbContext
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             if (string.IsNullOrWhiteSpace(connectionString))
@@ -36,7 +59,7 @@ namespace Fas7nyProject
 
             // Identity
             builder.Services
-                .AddIdentity<User, IdentityRole<Guid>>(options =>
+                .AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
                     options.Password.RequiredLength = 8;
                     options.Password.RequireDigit = true;
@@ -73,13 +96,13 @@ namespace Fas7nyProject
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
 
-            // ✅ مهم جدًا
+
+            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllers();
+
             app.Run();
         }
     }

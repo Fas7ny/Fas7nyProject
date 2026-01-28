@@ -22,5 +22,8 @@ namespace Fas7ny.Application.DTOs.Account.Request
         [Required(ErrorMessage = "Please confirm your password")]
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         public string ConfirmPassword { get; set; }
+
+
+        public string Address { get; set; }
     }
 }
