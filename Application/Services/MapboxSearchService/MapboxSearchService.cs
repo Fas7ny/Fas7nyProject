@@ -1,7 +1,7 @@
 ﻿using Fas7ny.Application.DTOs.Ai.Request.Fas7ny.Application.DTOs.Mapbox.Request;
 using Fas7ny.Application.DTOs.Mapbox.Response;
 using Fas7ny.Application.Options;
-using Fas7ny.Application.Services.MapboxSearchService;
+using Fas7ny.Application.ServivesInterfaces;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 

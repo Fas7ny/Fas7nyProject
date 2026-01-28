@@ -2,23 +2,34 @@
 
 namespace Fas7ny.Application.DTOs.Payment.Request
 {
+
     public class CreatePaymentRequest
     {
-        [Required(ErrorMessage = "Booking ID is required")]
-        public Guid BookingId { get; set; }
+        [Required(ErrorMessage = "UserId is required.")]
+        public string UserId { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Amount is required")]
-        [Range(0.01, 999999.99, ErrorMessage = "Amount must be between 0.01 and 999,999.99")]
+        [Required(ErrorMessage = "Amount is required.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Amount must be greater than zero.")]
         public decimal Amount { get; set; }
 
-        [Required(ErrorMessage = "Payment method is required")]
-        [StringLength(50, MinimumLength = 3, ErrorMessage = "Payment method must be between 3 and 50 characters")]
-        [RegularExpression("^(CreditCard|DebitCard|PayPal|Cash|BankTransfer|Stripe)$",
-            ErrorMessage = "Invalid payment method. Allowed: CreditCard, DebitCard, PayPal, Cash, BankTransfer, Stripe")]
-        public string PaymentMethod { get; set; }
+        [Required(ErrorMessage = "First name is required.")]
+        [StringLength(50, ErrorMessage = "First name must not exceed 50 characters.")]
+        public string? FirstName { get; set; }
 
-        [Required(ErrorMessage = "Payment date is required")]
-        [DataType(DataType.DateTime)]
-        public DateTime PaymentDate { get; set; } = DateTime.UtcNow;
+        [Required(ErrorMessage = "Last name is required.")]
+        [StringLength(50, ErrorMessage = "Last name must not exceed 50 characters.")]
+        public string? LastName { get; set; }
+
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        public string? Email { get; set; }
+
+        [Required(ErrorMessage = "Phone number is required.")]
+        [Phone(ErrorMessage = "Invalid phone number format.")]
+        public string? PhoneNumber { get; set; }
+
+        [StringLength(200, ErrorMessage = "Description must not exceed 200 characters.")]
+        public string? Description { get; set; }
     }
+
 }

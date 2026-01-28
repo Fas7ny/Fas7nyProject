@@ -1,6 +1,6 @@
 ﻿using Fas7ny.Domain.Entities;
 
-namespace Fas7ny.Application.Services.JwtService.Security
+namespace Fas7ny.Application.ServivesInterfaces
 {
     public interface IJwtTokenService
     {

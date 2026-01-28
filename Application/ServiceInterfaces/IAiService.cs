@@ -1,7 +1,7 @@
 ﻿using Fas7ny.Application.DTOs.Ai.Request;
 using Fas7ny.Application.DTOs.Ai.Response;
 
-namespace Fas7ny.Application.Services.OpenAiService
+namespace Fas7ny.Application.ServivesInterfaces
 {
 
     public interface IAiService

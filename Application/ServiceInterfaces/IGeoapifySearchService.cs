@@ -1,6 +1,6 @@
 ﻿using Fas7ny.Application.DTOs.Geoapify.Response;
 
-namespace Fas7ny.Application.Services.AlogailaSearche
+namespace Fas7ny.Application.ServivesInterfaces
 {
     public interface IGeoapifySearchService
     {

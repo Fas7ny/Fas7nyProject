@@ -1,5 +1,5 @@
 ﻿using Fas7ny.Application.DTOs.Geoapify.Response;
-using Fas7ny.Application.Services.AlogailaSearche;
+using Fas7ny.Application.ServivesInterfaces;
 using Fas7ny.Domain.Entities;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
