@@ -1,6 +1,7 @@
 ﻿using Fas7ny.Application.DTOs.Ai.Request;
 using Fas7ny.Application.DTOs.Ai.Response;
 using Fas7ny.Application.Options;
+using Fas7ny.Application.ServivesInterfaces;
 using Microsoft.Extensions.Options;
 using OpenAI;
 using System.ClientModel;
@@ -197,7 +198,7 @@ namespace Fas7ny.Application.Services.OpenAiService
         }
 
 
-       
+
 
 
     }

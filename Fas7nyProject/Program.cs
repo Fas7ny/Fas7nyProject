@@ -1,9 +1,9 @@
 ﻿using Fas7ny.Application.Options;
-using Fas7ny.Application.Services.AlogailaSearche;
 using Fas7ny.Application.Services.JwtService.Extensions;
 using Fas7ny.Application.Services.JwtService.Settings;
-using Fas7ny.Application.Services.MapboxSearchService;
 using Fas7ny.Application.Services.OpenAiService;
+using Fas7ny.Application.Services.Payment;
+using Fas7ny.Application.ServivesInterfaces;
 using Fas7ny.Domain.Entities;
 using Fas7ny.Domain.Repo;
 using Fas7ny.Domain.RepoInterfaces;
@@ -43,7 +43,10 @@ namespace Fas7nyProject
             builder.Configuration.GetSection("OpenAI"));
             builder.Services.AddHttpClient<IAiService, AiService>();
 
-
+            //Paymob Payment Service
+            builder.Services.Configure<PaymobOptions>(
+            builder.Configuration.GetSection("Paymob"));
+            builder.Services.AddHttpClient<IPaymobService, PaymobService>();
 
 
             // DbContext

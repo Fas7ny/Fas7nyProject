@@ -1,4 +1,4 @@
-﻿# 🧱 Fas7nyProject – Clean Architecture
+﻿# 🧱 Fas7nyProject – Clean Architecture Tourism Platform
 
 This project is built using **Clean Architecture** principles to ensure a clear separation of concerns, high maintainability, testability, and scalability.
 It follows modern backend best practices using **ASP.NET Core**, **CQRS**, **Repository Pattern**, and **Unit of Work**.
@@ -8,7 +8,6 @@ It follows modern backend best practices using **ASP.NET Core**, **CQRS**, **Rep
 ## 🏗️ Project Architecture Overview
 
 The solution is organized into **four main layers**, each with a specific responsibility:
-
 ```
 Presentation
  └── Application
@@ -19,7 +18,6 @@ Presentation
 ---
 
 ## 📁 Solution Structure
-
 ```
 Fas7nyProject
 │
@@ -28,7 +26,14 @@ Fas7nyProject
 │   │   ├── Commands        // Write operations (Create, Update, Delete)
 │   │   └── Queries         // Read-only operations (Get, Search, Filter)
 │   ├── DTOs                // Request & Response DTOs
+│   │   ├── Ai              // AI service DTOs
+│   │   ├── Payment         // Payment service DTOs
+│   │   └── SearchLog       // Search & logging DTOs
+│   ├── Options             // Configuration options (OpenAI, Paymob, Algolia)
 │   ├── Services
+│   │   ├── OpenAiService   // AI-powered services
+│   │   ├── Payment         // Paymob payment integration
+│   │   └── AlgoliaSearch   // Search service integration
 │   └── ServicesInterfaces
 │
 ├── Domain
@@ -44,7 +49,7 @@ Fas7nyProject
 ├── Presentation
 │   └── Controllers         // API Controllers
 │
-└── Program.cs              // Application entry point
+└── Program.cs              // Application entry point & DI configuration
 ```
 
 ---
@@ -66,12 +71,13 @@ Fas7nyProject
 * Contains **application use cases**
 * Implements **CQRS (Commands & Queries)**
 * Responsible for:
-
   * Request / Response DTOs
   * Application services
   * Validation rules
+  * AI services integration
+  * Payment processing
+  * Search functionality
 * Defines abstractions:
-
   * `IRepository`
   * `IUnitOfWork`
   * Service interfaces
@@ -84,7 +90,6 @@ Fas7nyProject
 
 * Represents the **core business logic**
 * Contains:
-
   * Entities
   * Enums
   * Value Objects
@@ -99,7 +104,6 @@ Fas7nyProject
 
 * Implements interfaces defined in the Domain layer
 * Responsible for:
-
   * Database access (EF Core)
   * Migrations
   * Seed data
@@ -110,121 +114,268 @@ Fas7nyProject
 
 ## 🔄 CRUD Operation Flow
 
-1. Client sends a request to the **Presentation Layer**.
-2. Controller forwards the request to the **Application Layer**.
-3. Application layer executes the corresponding **Command** or **Query**.
-4. Domain layer applies business rules and validations.
-5. Infrastructure layer accesses the database or external services.
+1. Client sends a request to the **Presentation Layer**
+2. Controller forwards the request to the **Application Layer**
+3. Application layer executes the corresponding **Command** or **Query**
+4. Domain layer applies business rules and validations
+5. Infrastructure layer accesses the database or external services
 6. Result flows back through:
-
-   ```
+```
    Infrastructure → Application → Presentation
-   ```
-7. Response is returned to the client.
+```
+7. Response is returned to the client
 
 ---
 
 ## 🧩 Patterns & Practices Used
 
-* Clean Architecture
-* CQRS (Command Query Responsibility Segregation)
-* Repository Pattern
-* Unit of Work
-* Dependency Injection
-* DTO Pattern
+* **Clean Architecture**
+* **CQRS** (Command Query Responsibility Segregation)
+* **Repository Pattern**
+* **Unit of Work**
+* **Dependency Injection**
+* **DTO Pattern**
+* **Options Pattern** (for configuration)
 
 ---
 
-## ✅ Benefits
+## 🔌 Third-Party Integrations
 
-### 🔹 Maintainability
+### 🔍 Algolia Search Service
+* **Purpose**: Fast and intelligent search for tourism data
+* **Features**:
+  * Search places, cities, attractions
+  * Real-time indexing
+  * Faceted search and filtering
+  * Geo-search capabilities
 
-Clear separation of responsibilities allows changes without affecting other layers.
+**Configuration** (`appsettings.json`):
+```json
+{
+  "Algolia": {
+    "AppId": "your-app-id",
+    "SearchApiKey": "your-search-api-key",
+    "Indexes": {
+      "places": "places_index",
+      "hotels": "hotels_index",
+      "restaurants": "restaurants_index"
+    }
+  }
+}
+```
 
-### 🔹 Testability
+### 💳 Paymob Payment Gateway
+* **Purpose**: Secure payment processing for bookings
+* **Features**:
+  * Multiple payment methods
+  * EGP currency support
+  * Secure transaction handling
+  * Payment webhooks
 
-Each layer can be tested independently using unit and integration tests.
+**Configuration** (`appsettings.json`):
+```json
+{
+  "Paymob": {
+    "ApiKey": "your-api-key",
+    "IntegrationId": 123456,
+    "Currency": "EGP",
+    "BaseUrl": "https://accept.paymob.com/api"
+  }
+}
+```
 
-### 🔹 Flexibility
+### 🤖 OpenAI Integration
+* **Purpose**: AI-powered features for enhanced user experience
+* **Model**: GPT-4 / GPT-3.5-turbo
 
-Infrastructure (database, external APIs) can be replaced with minimal impact.
+**Configuration** (`appsettings.json`):
+```json
+{
+  "OpenAI": {
+    "ApiKey": "your-openai-api-key",
+    "BaseUrl": "https://api.openai.com/v1",
+    "Model": "gpt-4"
+  }
+}
+```
 
-### 🔹 Scalability
+---
 
-Designed to scale for large applications and team collaboration.
+## 🤖 AI Services
+
+### 1️⃣ User Behavior Analysis
+**Purpose**: Analyze user behavior patterns and generate personalized insights
+
+**Features**:
+* Track user search history
+* Analyze clicked places and bookings
+* Identify behavior patterns
+* Detect risk factors
+* Generate personalized recommendations
+
+**Endpoint**: `POST /api/ai/analyze-behavior`
+
+**Request**:
+```json
+{
+  "userId": "user123",
+  "searchHistory": ["Cairo", "Alexandria", "Luxor"],
+  "clickedPlaces": ["pyramids", "museum"],
+  "bookings": ["booking123"],
+  "lastActivityDate": "2026-01-28"
+}
+```
+
+**Response**:
+```json
+{
+  "behaviorPatterns": [
+    "Frequent historical site searches",
+    "Prefers cultural experiences"
+  ],
+  "preferences": [
+    "Ancient history",
+    "Museums and monuments"
+  ],
+  "recommendations": [
+    "Valley of the Kings tour",
+    "Egyptian Museum visit"
+  ],
+  "riskFactors": []
+}
+```
 
 ---
 
-## 📝 Notes
+### 2️⃣ AI Chat Assistant
+**Purpose**: Conversational AI assistant for real-time customer support
 
-* This is a **simplified Clean Architecture implementation**
-* The structure can be extended with:
+**Features**:
+* Natural language understanding
+* Tourism-specific knowledge
+* Context-aware responses
+* Multi-turn conversations
 
-  * Domain Events
-  * Caching layer
-  * Background jobs
-  * Messaging systems (RabbitMQ, Kafka)
-* Suitable for **real-world enterprise applications**
+**Endpoint**: `POST /api/ai/chat`
 
----
+**Request**:
+```json
+{
+  "message": "What are the best places to visit in Cairo?"
+}
+```
 
-## 🚀 Getting Started
-
-1. Configure the database connection in `appsettings.json`
-2. Run database migrations
-3. Start the API project
-
----
-
-## 📚 Controllers & Endpoints
-
-* Controllers are located in the **Presentation layer**
-* Controllers:
-
-  * Receive requests from clients
-  * Forward them to the Application layer
-  * Return responses to the client
-* 🚫 Controllers **must not contain business logic**
+**Response**:
+```json
+{
+  "response": "Cairo offers amazing attractions including the Pyramids of Giza, the Egyptian Museum, Khan el-Khalili bazaar, and the Citadel of Saladin..."
+}
+```
 
 ---
 
-## 📌 Final Notes
+### 3️⃣ Package Generator
+**Purpose**: Generate complete tourism packages based on user preferences
 
-This architecture is designed to keep the system:
+**Features**:
+* Budget-based planning
+* Customized itineraries
+* Activity recommendations
+* Cost breakdown
+* Duration-based planning
 
-* Clean
-* Modular
-* Easy to maintain
-* Easy to test
-* Ready for future growth
+**Endpoint**: `POST /api/ai/generate-package`
 
-## 📜 License
+**Request**:
+```json
+{
+  "budget": 5000,
+  "destination": "Cairo",
+  "duration": 5,
+  "preferences": ["historical", "cultural", "food"]
+}
+```
 
-This project is source-available.
-
-You are allowed to use and modify the code for personal or internal purposes.
-Redistribution or public publishing of this project is strictly prohibited
-without written permission from the author.
-
-Copyright © 2026 Yousef Walid
-
-All rights reserved.
+**Response**:
+```json
+{
+  "packageName": "Cairo Historical & Cultural Experience",
+  "description": "5-day immersive journey through Egypt's rich history...",
+  "totalCost": 4850,
+  "items": [
+    {
+      "name": "Hotel Accommodation",
+      "description": "4-star hotel near Pyramids",
+      "cost": 2000
+    },
+    {
+      "name": "Guided Tours",
+      "description": "Professional Egyptologist guide",
+      "cost": 1500
+    }
+  ],
+  "itinerary": [
+    {
+      "day": 1,
+      "activities": ["Pyramids of Giza", "Sphinx", "Sound & Light Show"]
+    },
+    {
+      "day": 2,
+      "activities": ["Egyptian Museum", "Khan el-Khalili"]
+    }
+  ]
+}
+```
 
 ---
-# Use UserSecrets for sensitive data in development in secrets.json:(DbConnectionString, JWT Secret, etc.)
 
+### 4️⃣ Smart Recommendations
+**Purpose**: Provide personalized tourism recommendations
 
-# Relationship Diagram
-```plaintext```
-+-------------------+
-// ============================================================================
-// RELATIONSHIP SUMMARY
-// ============================================================================
+**Features**:
+* Behavior-based recommendations
+* Preference matching
+* Relevance scoring
+* Category-based filtering
 
-/*
-RELATIONSHIP DIAGRAM:
+**Endpoint**: `POST /api/ai/recommendations`
 
-ApplicationUser (1) ────────── (1) Carts
+**Request**:
+```json
+{
+  "preferences": ["beach", "adventure", "nightlife"],
+  "location": "Red Sea",
+  "budget": 3000
+}
+```
+
+**Response**:
+```json
+{
+  "recommendations": [
+    {
+      "title": "Hurghada Water Sports Package",
+      "description": "Diving, snorkeling, and parasailing experience",
+      "relevanceScore": 0.95,
+      "category": "Adventure"
+    },
+    {
+      "title": "Sharm El Sheikh Beach Resort",
+      "description": "All-inclusive beach resort with nightlife",
+      "relevanceScore": 0.89,
+      "category": "Beach & Nightlife"
+    }
+  ]
+}
+```
+
+---
+
+## 📊 Database Relationships
+
+### Relationship Diagram
+```plaintext
+ApplicationUser (1) ────────── (1) Cart
        │
        ├──── (1:N) ────── Bookings
        ├──── (1:N) ────── ChatMessages
@@ -234,13 +385,15 @@ ApplicationUser (1) ────────── (1) Carts
        ├──── (1:N) ────── UserInteractions
        └──── (1:N) ────── UserPreferences
 
-Carts (1) ────────── (N) CartItems
+Cart (1) ────────── (N) CartItems
 
 CartItems (N) ────────── (1) Booking
 
 Booking (1) ────────── (1) Payment
 
 Package (1) ────────── (N) Reviews
+
+Country (1) ────────── (N) Cities
 
 City (1) ────────── (N) Hotels
      (1) ────────── (N) Restaurants
@@ -253,41 +406,214 @@ Hotel (1) ────────── (N) HotelRooms
 Package (1) ────────── (N) PackageDetails
 
 TouristPlace (1) ────────── (N) PackageDetails
+```
 
-KEY RELATIONSHIPS:
+### Key Relationships:
 
-1. One-to-One:
-   - User ←→ Cart (Each user has one cart)
-   - Booking ←→ Payment (Each booking has one payment)
+#### 1️⃣ One-to-One:
+* `User ←→ Cart` (Each user has one cart)
+* `Booking ←→ Payment` (Each booking has one payment)
 
-2. One-to-Many:
-   - User → Bookings, Reviews, Interactions, Preferences
-   - Cart → CartItems
-   - Package → Reviews, PackageDetails
-   - City → Hotels, Restaurants, TouristPlaces, Packages
+#### 2️⃣ One-to-Many:
+* `User → Bookings, Reviews, Interactions, Preferences`
+* `Cart → CartItems`
+* `Package → Reviews, PackageDetails`
+* `City → Hotels, Restaurants, TouristPlaces, Packages`
+* `Country → Cities`
 
-3. Many-to-One:
-   - CartItems → Booking (Many cart items can reference same booking)
-   - Reviews → User, Package
-   - PackageDetails → Package, TouristPlace
+#### 3️⃣ Many-to-One:
+* `CartItems → Booking` (Many cart items can reference same booking)
+* `Reviews → User, Package`
+* `PackageDetails → Package, TouristPlace`
 
-DELETE BEHAVIORS:
-   - Cascade: When parent deleted, children deleted (User → Cart, Cart → CartItems)
-   - Restrict: Prevents deletion if children exist (City → Hotels)
-   - SetNull: Sets FK to null when parent deleted (not used here)
-*/
+### Delete Behaviors:
+* **Cascade**: When parent deleted, children deleted (`User → Cart`, `Cart → CartItems`)
+* **Restrict**: Prevents deletion if children exist (`City → Hotels`)
+* **SetNull**: Sets FK to null when parent deleted
 
+---
 
+## ⚙️ Service Registration (Program.cs)
+```csharp
+// Configure Options
+builder.Services.Configure<OpenAIOptions>(
+    builder.Configuration.GetSection("OpenAI"));
+builder.Services.Configure<PaymobOptions>(
+    builder.Configuration.GetSection("Paymob"));
+builder.Services.Configure<AlgoliaOptions>(
+    builder.Configuration.GetSection("Algolia"));
 
+// Register Services
+builder.Services.AddScoped<IAiService, AiService>();
+builder.Services.AddHttpClient<IPaymobService, PaymobService>();
+builder.Services.AddScoped<IAlgoliaSearchRepository, AlgoliaService>();
 
-Geoapify-powered search service for tourism-related data (places, cities, attractions).
+// Register DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
--AI Services:
-     1) UserBehavior
-     Analyze user behavior and send a specific prompt to the AI to generate insights and recommendations that improve personalization and make user interaction smoothe
-     2) Ai Chat 
-     Enable conversational chat between the user and the AI using built-in classes and methods to provide real-time assistance, answer questions, and enhance user engagement
-     3) Generate Package 
-     Generate a complete tourism/travel package based on the user’s inputs (destination, budget, number of days, preferences), and return a structured plan (itinerary, activities, estimated cost, and notes) to help the user choose and book easily.
-     4) Recommendations
-     Provide personalized tourism recommendations based on user preferences, behavior, and interests (such as destinations, activities, hotels, or experiences) to help users discover the most relevant and appealing options quickly.
+// Register Unit of Work & Repositories
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+```
+
+---
+
+## ✅ Benefits
+
+### 🔹 Maintainability
+Clear separation of responsibilities allows changes without affecting other layers.
+
+### 🔹 Testability
+Each layer can be tested independently using unit and integration tests.
+
+### 🔹 Flexibility
+Infrastructure (database, external APIs) can be replaced with minimal impact.
+
+### 🔹 Scalability
+Designed to scale for large applications and team collaboration.
+
+### 🔹 AI-Powered
+Intelligent features enhance user experience and personalization.
+
+### 🔹 Secure Payments
+Integrated payment gateway ensures secure transactions.
+
+### 🔹 Fast Search
+Algolia-powered search provides instant results.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+* .NET 8.0 or higher
+* SQL Server
+* OpenAI API Key
+* Paymob Account
+* Algolia Account
+
+### Setup Steps
+
+1. **Clone the repository**
+```bash
+   git clone https://github.com/yourusername/Fas7nyProject.git
+   cd Fas7nyProject
+```
+
+2. **Configure User Secrets** (Development)
+```bash
+   dotnet user-secrets init
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "your-connection-string"
+   dotnet user-secrets set "OpenAI:ApiKey" "your-openai-key"
+   dotnet user-secrets set "Paymob:ApiKey" "your-paymob-key"
+   dotnet user-secrets set "Algolia:AppId" "your-algolia-app-id"
+   dotnet user-secrets set "Algolia:SearchApiKey" "your-algolia-search-key"
+```
+
+3. **Update appsettings.json** (Production)
+   * Configure database connection
+   * Set API keys and integration IDs
+
+4. **Run Migrations**
+```bash
+   dotnet ef database update
+```
+
+5. **Run the Application**
+```bash
+   dotnet run --project Presentation
+```
+
+6. **Access Swagger UI**
+```
+   https://localhost:5001/swagger
+```
+
+---
+
+## 🔒 Security Best Practices
+
+* ✅ Use **User Secrets** for development
+* ✅ Use **Azure Key Vault** or **AWS Secrets Manager** for production
+* ✅ Never commit sensitive data to source control
+* ✅ Use environment variables for CI/CD pipelines
+* ✅ Implement proper authentication and authorization
+* ✅ Validate all user inputs
+* ✅ Use HTTPS only
+
+---
+
+## 📚 API Documentation
+
+All API endpoints are documented using **Swagger/OpenAPI**.
+
+Access the interactive documentation at: `/swagger`
+
+### Main Controllers:
+* **Auth Controller** - User authentication & registration
+* **Booking Controller** - Booking management
+* **Package Controller** - Tourism packages
+* **Payment Controller** - Payment processing
+* **AI Controller** - AI-powered services
+* **Search Controller** - Algolia search integration
+
+---
+
+## 📝 Testing
+```bash
+# Run unit tests
+dotnet test
+
+# Run with coverage
+dotnet test /p:CollectCoverage=true
+```
+
+---
+
+## 📌 Future Enhancements
+
+* [ ] Domain Events
+* [ ] Caching layer (Redis)
+* [ ] Background jobs (Hangfire)
+* [ ] Messaging systems (RabbitMQ/Kafka)
+* [ ] Real-time notifications (SignalR)
+* [ ] Mobile app API
+* [ ] Admin dashboard
+* [ ] Multi-language support
+* [ ] Advanced analytics
+
+---
+
+## 📜 License
+
+This project is **source-available**.
+
+You are allowed to use and modify the code for personal or internal purposes.
+**Redistribution or public publishing** of this project is **strictly prohibited**
+without written permission from the author.
+
+**Copyright © 2026 Yousef Walid**
+
+All rights reserved.
+
+---
+
+## 👨‍💻 Author
+
+**Yousef Walid**
+
+For questions or collaboration inquiries, please contact via GitHub.
+
+---
+
+## 🙏 Acknowledgments
+
+* ASP.NET Core Team
+* OpenAI
+* Paymob
+* Algolia
+* Clean Architecture Community
+
+---
+
+**Built with ❤️ using Clean Architecture principles**
