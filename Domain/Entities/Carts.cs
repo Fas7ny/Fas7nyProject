@@ -2,7 +2,7 @@
 {
     public class Carts
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
         public ICollection<CartItems> CartItems { get; set; } = new List<CartItems>();

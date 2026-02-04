@@ -8,7 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DotNetEnv" Version="3.1.1" />
 
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
@@ -21,7 +20,7 @@
 			</IncludeAssets>
 		</PackageReference>
 
-		<PackageReference Include="OpenAI" Version="2.8.0" />
+		<PackageReference Include="Polly" Version="8.6.5" />
 
 		<!-- Swagger -->
 		<PackageReference Include="SwaggerUi" Version="1.1.0" PrivateAssets="all" />
@@ -40,7 +39,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="wwwroot\" />
+		<Folder Include="wwwroot\Activity\" />
+		<Folder Include="wwwroot\touristPlace\" />
+		<Folder Include="wwwroot\City\" />
+		<Folder Include="wwwroot\Hotel\" />
 	</ItemGroup>
 
 </Project>

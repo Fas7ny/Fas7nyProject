@@ -1,4 +1,4 @@
-﻿using Fas7ny.Enum;
+﻿using Fas7nyProject.Presentation.Controllers;
 using System.Text.Json.Serialization;
 
 namespace Fas7ny.Domain.Entities
@@ -12,9 +12,9 @@ namespace Fas7ny.Domain.Entities
         public decimal Budget { get; set; }
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public CategoryEnum CategoryPreference { get; set; }
+        public CategoryPreference CategoryPreference { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
         public ApplicationUser User { get; set; }
     }
 }

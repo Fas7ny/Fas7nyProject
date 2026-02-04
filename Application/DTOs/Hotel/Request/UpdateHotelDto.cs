@@ -25,6 +25,7 @@ namespace Fas7ny.Application.DTOs.Hotel.Request
 
         [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
         public string Description { get; set; }
+        public decimal price { get; set; }
     }
 
 

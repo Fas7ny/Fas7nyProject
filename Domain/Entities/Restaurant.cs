@@ -2,6 +2,9 @@
 {
     public class Restaurant
     {
+        public string address;
+        public string imageUrl;
+
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Cuisine { get; set; }

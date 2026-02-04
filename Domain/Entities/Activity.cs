@@ -2,20 +2,36 @@
 {
     public class Activity
     {
-        public Guid Id { get; private set; }
-        public string Name { get; private set; }
+        public int Id { get; private set; }
+        public string Name { get; private set; } = string.Empty;
         public decimal Cost { get; private set; }
-        public Guid CityId { get; private set; }
+        public int CityId { get; private set; }
+        public string ImageUrl { get; set; }
+        // public int TouristPlacesId { get; set; }
 
+        // Navigation property
+        public virtual City City { get; set; } = null!;
+        public string PictureUrl { get; set; }
+
+        // Parameterless constructor for EF Core
         private Activity() { }
 
-        public Activity(string name, decimal cost, Guid cityId)
+        // Constructor
+        public Activity(string name, decimal cost, int cityId)
         {
-            Id = Guid.NewGuid();
+            Name = name;
+            Cost = cost;
+            CityId = cityId;
+        }
+
+        // Update method
+        public void Update(string name, decimal cost, int cityId)
+        {
             Name = name;
             Cost = cost;
             CityId = cityId;
         }
     }
+
 
 }

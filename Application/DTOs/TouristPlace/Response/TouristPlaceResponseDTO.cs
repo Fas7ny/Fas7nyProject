@@ -10,5 +10,6 @@
         public string Category { get; set; }
         public decimal EntryFee { get; set; }
         public string OpeningHours { get; set; }
+        public string ImageUrl { get; set; }
     }
 }

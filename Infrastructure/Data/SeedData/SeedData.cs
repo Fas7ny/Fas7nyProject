@@ -1,5 +1,6 @@
 ﻿using Fas7ny.Domain.Entities;
 using Fas7ny.Domain.Entities.Fas7ny.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fas7ny.Infrastructure.Data.SeedData
@@ -13,8 +14,56 @@ namespace Fas7ny.Infrastructure.Data.SeedData
             SeedCities(modelBuilder);
         }
 
+        public static async Task SeedAsync(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
+        {
+            // Create roles
+            string[] roles = { "Admin", "User", "Partner" };
+
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
+
+            // Create admin user
+            var adminEmail = "yousefwalid950@gmail.com";
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+            if (adminUser == null)
+            {
+                adminUser = new ApplicationUser
+                {
+                    UserName = "yousefwalid950",
+                    Email = adminEmail,
+                    FullName = "System Admin",
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(adminUser, "Admin@123");
+
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+            }
+            else
+            {
+                // User exists, make sure they have Admin role
+                var userRoles = await userManager.GetRolesAsync(adminUser);
+                if (!userRoles.Contains("Admin"))
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+            }
+        }
+
         private static void SeedCountries(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<Country>().HasData(
                 new Country { Id = 1, Name = "Egypt", Code = "EG", IsActive = true },
                 new Country { Id = 2, Name = "Turkey", Code = "TR", IsActive = true },
@@ -269,5 +318,8 @@ namespace Fas7ny.Infrastructure.Data.SeedData
                 new City { Id = 4028, Name = "Red Sea Project", CountryId = 4, IsActive = true, Description = "Luxury tourism destination under development" }
             );
         }
+
     }
+
+
 }

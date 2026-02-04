@@ -1,5 +1,5 @@
-﻿using Fas7ny.Application.DTOs.Ai.Request.Fas7ny.Application.DTOs.Mapbox.Request;
-using Fas7ny.Application.DTOs.Mapbox.Response;
+﻿using Fas7ny.Application.DTOs.Destination.Request;
+using Fas7ny.Application.DTOs.Services;
 
 namespace Fas7ny.Application.ServivesInterfaces
 {
