@@ -8,7 +8,7 @@ using TourismApp.Data;
 
 #nullable disable
 
-namespace ______________.Migrations
+namespace Fas7ny.Infrastructure.Migrations
 {
     [DbContext(typeof(TourismDbContext))]
     partial class TourismDbContextModelSnapshot : ModelSnapshot
@@ -24,23 +24,41 @@ namespace ______________.Migrations
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.Activity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
-                    b.Property<Guid>("CityId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("city_id");
 
                     b.Property<decimal>("Cost")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("cost");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PictureUrl")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Activity");
+                    b.HasIndex("CityId")
+                        .HasDatabaseName("ix_activities_city_id");
+
+                    b.ToTable("activities", (string)null);
                 });
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.ApplicationUser", b =>
@@ -144,8 +162,9 @@ namespace ______________.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BookingItemId")
-                        .HasColumnType("integer")
+                    b.Property<string>("BookingItemId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("booking_item_id");
 
                     b.Property<string>("BookingType")
@@ -153,6 +172,9 @@ namespace ______________.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("booking_type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp")
@@ -183,32 +205,104 @@ namespace ______________.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("BookingType", "BookingItemId")
+                        .HasDatabaseName("ix_bookings_type_item");
+
                     b.ToTable("bookings", (string)null);
+                });
+
+            modelBuilder.Entity("Fas7ny.Domain.Entities.BookingCustomTrip", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BookingCustomTrips");
+                });
+
+            modelBuilder.Entity("Fas7ny.Domain.Entities.BookingCustomTripDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CheckInDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CheckOutDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HotelId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("HotelId");
+
+                    b.ToTable("BookingCustomTripDetails");
                 });
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.CartItems", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BookingId")
                         .HasColumnType("integer")
                         .HasColumnName("booking_id");
 
-                    b.Property<Guid>("CartId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CartId")
+                        .HasColumnType("integer")
                         .HasColumnName("cart_id");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("price");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("ProductId1")
+                    b.Property<int>("ProductId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Quantity")
@@ -221,7 +315,7 @@ namespace ______________.Migrations
 
                     b.HasIndex("BookingId");
 
-                    b.HasIndex("ProductId1");
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("CartId", "BookingId")
                         .IsUnique()
@@ -232,10 +326,12 @@ namespace ______________.Migrations
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.Carts", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -272,7 +368,9 @@ namespace ______________.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -408,14 +506,9 @@ namespace ______________.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("country");
-
                     b.Property<int>("CountryId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("country_id");
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
@@ -427,7 +520,10 @@ namespace ______________.Migrations
                         .HasColumnName("image_url");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -445,7 +541,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1001,
-                            Country = "",
                             CountryId = 1,
                             Description = "Capital city with pyramids and museums",
                             IsActive = true,
@@ -454,7 +549,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1002,
-                            Country = "",
                             CountryId = 1,
                             Description = "Home of the Great Pyramids and Sphinx",
                             IsActive = true,
@@ -463,7 +557,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1003,
-                            Country = "",
                             CountryId = 1,
                             Description = "Mediterranean pearl with ancient library",
                             IsActive = true,
@@ -472,7 +565,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1004,
-                            Country = "",
                             CountryId = 1,
                             Description = "Beautiful Mediterranean beaches",
                             IsActive = true,
@@ -481,7 +573,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1005,
-                            Country = "",
                             CountryId = 1,
                             Description = "WWII historical site and new resort city",
                             IsActive = true,
@@ -490,7 +581,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1006,
-                            Country = "",
                             CountryId = 1,
                             Description = "Luxury beach resorts along Mediterranean",
                             IsActive = true,
@@ -499,7 +589,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1007,
-                            Country = "",
                             CountryId = 1,
                             Description = "Ancient Thebes with Valley of Kings",
                             IsActive = true,
@@ -508,7 +597,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1008,
-                            Country = "",
                             CountryId = 1,
                             Description = "Nubian culture and beautiful Nile scenery",
                             IsActive = true,
@@ -517,7 +605,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1009,
-                            Country = "",
                             CountryId = 1,
                             Description = "Ramses II temples",
                             IsActive = true,
@@ -526,7 +613,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1010,
-                            Country = "",
                             CountryId = 1,
                             Description = "Temple of Horus",
                             IsActive = true,
@@ -535,7 +621,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1011,
-                            Country = "",
                             CountryId = 1,
                             Description = "Double temple on the Nile",
                             IsActive = true,
@@ -544,7 +629,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1012,
-                            Country = "",
                             CountryId = 1,
                             Description = "Ancient temple and Nile cruise stop",
                             IsActive = true,
@@ -553,7 +637,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1013,
-                            Country = "",
                             CountryId = 1,
                             Description = "Popular Red Sea resort with diving",
                             IsActive = true,
@@ -562,7 +645,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1014,
-                            Country = "",
                             CountryId = 1,
                             Description = "Premium resort city in South Sinai",
                             IsActive = true,
@@ -571,7 +653,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1015,
-                            Country = "",
                             CountryId = 1,
                             Description = "Laid-back diving and windsurfing destination",
                             IsActive = true,
@@ -580,7 +661,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1016,
-                            Country = "",
                             CountryId = 1,
                             Description = "Pristine diving spots and marine life",
                             IsActive = true,
@@ -589,7 +669,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1017,
-                            Country = "",
                             CountryId = 1,
                             Description = "Luxury resort town near Hurghada",
                             IsActive = true,
@@ -598,7 +677,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1018,
-                            Country = "",
                             CountryId = 1,
                             Description = "Exclusive resort destination",
                             IsActive = true,
@@ -607,7 +685,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1019,
-                            Country = "",
                             CountryId = 1,
                             Description = "Resort area with water sports",
                             IsActive = true,
@@ -616,7 +693,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1020,
-                            Country = "",
                             CountryId = 1,
                             Description = "Upscale resort community",
                             IsActive = true,
@@ -625,7 +701,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1021,
-                            Country = "",
                             CountryId = 1,
                             Description = "Border resort with coral reefs",
                             IsActive = true,
@@ -634,7 +709,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1022,
-                            Country = "",
                             CountryId = 1,
                             Description = "Quiet beaches and diving spots",
                             IsActive = true,
@@ -643,7 +717,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1023,
-                            Country = "",
                             CountryId = 1,
                             Description = "Mount Sinai and ancient monastery",
                             IsActive = true,
@@ -652,7 +725,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1024,
-                            Country = "",
                             CountryId = 1,
                             Description = "Developing resort area",
                             IsActive = true,
@@ -661,7 +733,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1025,
-                            Country = "",
                             CountryId = 1,
                             Description = "Close weekend beach destination",
                             IsActive = true,
@@ -670,7 +741,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1026,
-                            Country = "",
                             CountryId = 1,
                             Description = "Oasis with Wadi El Rayan waterfalls",
                             IsActive = true,
@@ -679,7 +749,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1027,
-                            Country = "",
                             CountryId = 1,
                             Description = "Coptic monasteries in the desert",
                             IsActive = true,
@@ -688,7 +757,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1028,
-                            Country = "",
                             CountryId = 1,
                             Description = "Remote desert oasis with unique culture",
                             IsActive = true,
@@ -697,7 +765,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1029,
-                            Country = "",
                             CountryId = 1,
                             Description = "White Desert and Black Desert gateway",
                             IsActive = true,
@@ -706,7 +773,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1030,
-                            Country = "",
                             CountryId = 1,
                             Description = "Historical oasis with hot springs",
                             IsActive = true,
@@ -715,7 +781,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1031,
-                            Country = "",
                             CountryId = 1,
                             Description = "Ancient temples and fortress",
                             IsActive = true,
@@ -724,7 +789,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1032,
-                            Country = "",
                             CountryId = 1,
                             Description = "Gateway to White Desert",
                             IsActive = true,
@@ -733,7 +797,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1033,
-                            Country = "",
                             CountryId = 1,
                             Description = "Suez Canal entrance city",
                             IsActive = true,
@@ -742,7 +805,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1034,
-                            Country = "",
                             CountryId = 1,
                             Description = "Beautiful city on Suez Canal",
                             IsActive = true,
@@ -751,7 +813,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1035,
-                            Country = "",
                             CountryId = 1,
                             Description = "Strategic port city",
                             IsActive = true,
@@ -760,7 +821,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1036,
-                            Country = "",
                             CountryId = 1,
                             Description = "Nile Delta coastal city",
                             IsActive = true,
@@ -769,7 +829,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1037,
-                            Country = "",
                             CountryId = 1,
                             Description = "Historical city where Rosetta Stone was found",
                             IsActive = true,
@@ -778,7 +837,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1038,
-                            Country = "",
                             CountryId = 1,
                             Description = "Religious festivals destination",
                             IsActive = true,
@@ -787,7 +845,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1039,
-                            Country = "",
                             CountryId = 1,
                             Description = "Tuna el-Gebel and Beni Hassan tombs",
                             IsActive = true,
@@ -796,7 +853,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1040,
-                            Country = "",
                             CountryId = 1,
                             Description = "Abydos temple complex",
                             IsActive = true,
@@ -805,7 +861,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 1041,
-                            Country = "",
                             CountryId = 1,
                             Description = "Gateway to Dendera Temple",
                             IsActive = true,
@@ -814,7 +869,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2001,
-                            Country = "",
                             CountryId = 2,
                             Description = "Historic city spanning two continents",
                             IsActive = true,
@@ -823,7 +877,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2002,
-                            Country = "",
                             CountryId = 2,
                             Description = "Ottoman heritage and Uludağ ski resort",
                             IsActive = true,
@@ -832,7 +885,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2003,
-                            Country = "",
                             CountryId = 2,
                             Description = "Former Ottoman capital with beautiful mosques",
                             IsActive = true,
@@ -841,7 +893,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2004,
-                            Country = "",
                             CountryId = 2,
                             Description = "Troy ancient city and WWI memorials",
                             IsActive = true,
@@ -850,7 +901,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2005,
-                            Country = "",
                             CountryId = 2,
                             Description = "Modern coastal city with ancient Smyrna",
                             IsActive = true,
@@ -859,7 +909,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2006,
-                            Country = "",
                             CountryId = 2,
                             Description = "Luxury resort town with ancient ruins",
                             IsActive = true,
@@ -868,7 +917,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2007,
-                            Country = "",
                             CountryId = 2,
                             Description = "Cruise port near Ephesus",
                             IsActive = true,
@@ -877,7 +925,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2008,
-                            Country = "",
                             CountryId = 2,
                             Description = "Beach resort with thermal springs",
                             IsActive = true,
@@ -886,7 +933,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2009,
-                            Country = "",
                             CountryId = 2,
                             Description = "Popular beach resort and marina",
                             IsActive = true,
@@ -895,7 +941,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2010,
-                            Country = "",
                             CountryId = 2,
                             Description = "Ölüdeniz Blue Lagoon and paragliding",
                             IsActive = true,
@@ -904,7 +949,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2011,
-                            Country = "",
                             CountryId = 2,
                             Description = "Peaceful peninsula destination",
                             IsActive = true,
@@ -913,7 +957,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2012,
-                            Country = "",
                             CountryId = 2,
                             Description = "Ancient cities of Ephesus and Aphrodisias",
                             IsActive = true,
@@ -922,7 +965,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2013,
-                            Country = "",
                             CountryId = 2,
                             Description = "Tourism capital of Turkish Riviera",
                             IsActive = true,
@@ -931,7 +973,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2014,
-                            Country = "",
                             CountryId = 2,
                             Description = "Beach resort with historical castle",
                             IsActive = true,
@@ -940,7 +981,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2015,
-                            Country = "",
                             CountryId = 2,
                             Description = "Ancient ruins on beautiful beaches",
                             IsActive = true,
@@ -949,7 +989,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2016,
-                            Country = "",
                             CountryId = 2,
                             Description = "Diving paradise and boutique town",
                             IsActive = true,
@@ -958,7 +997,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2017,
-                            Country = "",
                             CountryId = 2,
                             Description = "Upscale hillside resort town",
                             IsActive = true,
@@ -967,7 +1005,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2018,
-                            Country = "",
                             CountryId = 2,
                             Description = "Mountain-backed beach resort",
                             IsActive = true,
@@ -976,7 +1013,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2019,
-                            Country = "",
                             CountryId = 2,
                             Description = "Golf and luxury resort destination",
                             IsActive = true,
@@ -985,7 +1021,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2020,
-                            Country = "",
                             CountryId = 2,
                             Description = "Capital city with Anıtkabir mausoleum",
                             IsActive = true,
@@ -994,7 +1029,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2021,
-                            Country = "",
                             CountryId = 2,
                             Description = "Fairy chimneys and hot air balloons",
                             IsActive = true,
@@ -1003,7 +1037,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2022,
-                            Country = "",
                             CountryId = 2,
                             Description = "Cave hotels and rock formations",
                             IsActive = true,
@@ -1012,7 +1045,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2023,
-                            Country = "",
                             CountryId = 2,
                             Description = "Wine region in Cappadocia",
                             IsActive = true,
@@ -1021,7 +1053,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2024,
-                            Country = "",
                             CountryId = 2,
                             Description = "Mevlana Museum and Whirling Dervishes",
                             IsActive = true,
@@ -1030,7 +1061,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2025,
-                            Country = "",
                             CountryId = 2,
                             Description = "Gateway to Cappadocia with Mount Erciyes",
                             IsActive = true,
@@ -1039,7 +1069,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2026,
-                            Country = "",
                             CountryId = 2,
                             Description = "Sumela Monastery and Uzungöl lake",
                             IsActive = true,
@@ -1048,7 +1077,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2027,
-                            Country = "",
                             CountryId = 2,
                             Description = "Tea plantations and lush green mountains",
                             IsActive = true,
@@ -1057,7 +1085,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2028,
-                            Country = "",
                             CountryId = 2,
                             Description = "Highland plateau with hot springs",
                             IsActive = true,
@@ -1066,7 +1093,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2029,
-                            Country = "",
                             CountryId = 2,
                             Description = "Black Sea coastal city",
                             IsActive = true,
@@ -1075,7 +1101,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2030,
-                            Country = "",
                             CountryId = 2,
                             Description = "Historic Black Sea port",
                             IsActive = true,
@@ -1084,7 +1109,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2031,
-                            Country = "",
                             CountryId = 2,
                             Description = "Lake Van and ancient Armenian church",
                             IsActive = true,
@@ -1093,7 +1117,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2032,
-                            Country = "",
                             CountryId = 2,
                             Description = "Ski resort and historical city",
                             IsActive = true,
@@ -1102,7 +1125,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2033,
-                            Country = "",
                             CountryId = 2,
                             Description = "Ancient city walls and Tigris River",
                             IsActive = true,
@@ -1111,7 +1133,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2034,
-                            Country = "",
                             CountryId = 2,
                             Description = "Stone architecture and ancient monasteries",
                             IsActive = true,
@@ -1120,7 +1141,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2035,
-                            Country = "",
                             CountryId = 2,
                             Description = "Birthplace of Abraham, Göbekli Tepe",
                             IsActive = true,
@@ -1129,7 +1149,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2036,
-                            Country = "",
                             CountryId = 2,
                             Description = "White travertine terraces and Hierapolis",
                             IsActive = true,
@@ -1138,7 +1157,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2037,
-                            Country = "",
                             CountryId = 2,
                             Description = "Thermal springs and castle",
                             IsActive = true,
@@ -1147,7 +1165,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 2038,
-                            Country = "",
                             CountryId = 2,
                             Description = "Modern university city with river parks",
                             IsActive = true,
@@ -1156,7 +1173,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3001,
-                            Country = "",
                             CountryId = 3,
                             Description = "Capital city and main gateway",
                             IsActive = true,
@@ -1165,7 +1181,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3002,
-                            Country = "",
                             CountryId = 3,
                             Description = "Reclaimed island with hotels and beaches",
                             IsActive = true,
@@ -1174,7 +1189,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3003,
-                            Country = "",
                             CountryId = 3,
                             Description = "Closest luxury resorts to airport",
                             IsActive = true,
@@ -1183,7 +1197,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3004,
-                            Country = "",
                             CountryId = 3,
                             Description = "Surfing and local island experience",
                             IsActive = true,
@@ -1192,7 +1205,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3005,
-                            Country = "",
                             CountryId = 3,
                             Description = "Budget-friendly guesthouse island",
                             IsActive = true,
@@ -1201,7 +1213,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3006,
-                            Country = "",
                             CountryId = 3,
                             Description = "Local island with beautiful beaches",
                             IsActive = true,
@@ -1210,7 +1221,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3007,
-                            Country = "",
                             CountryId = 3,
                             Description = "Diving and surfing paradise",
                             IsActive = true,
@@ -1219,7 +1229,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3008,
-                            Country = "",
                             CountryId = 3,
                             Description = "Surfing and diving destination",
                             IsActive = true,
@@ -1228,7 +1237,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3009,
-                            Country = "",
                             CountryId = 3,
                             Description = "Whale shark diving hotspot",
                             IsActive = true,
@@ -1237,7 +1245,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3010,
-                            Country = "",
                             CountryId = 3,
                             Description = "Luxury resorts and manta rays",
                             IsActive = true,
@@ -1246,7 +1253,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3011,
-                            Country = "",
                             CountryId = 3,
                             Description = "Hammerhead shark diving",
                             IsActive = true,
@@ -1255,7 +1261,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3012,
-                            Country = "",
                             CountryId = 3,
                             Description = "Agricultural island with beaches",
                             IsActive = true,
@@ -1264,7 +1269,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3013,
-                            Country = "",
                             CountryId = 3,
                             Description = "UNESCO site with manta ray season",
                             IsActive = true,
@@ -1273,7 +1277,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3014,
-                            Country = "",
                             CountryId = 3,
                             Description = "Gateway to Hanifaru Bay",
                             IsActive = true,
@@ -1282,7 +1285,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3015,
-                            Country = "",
                             CountryId = 3,
                             Description = "Atoll capital with local culture",
                             IsActive = true,
@@ -1291,7 +1293,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3016,
-                            Country = "",
                             CountryId = 3,
                             Description = "Pristine dive sites",
                             IsActive = true,
@@ -1300,7 +1301,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3017,
-                            Country = "",
                             CountryId = 3,
                             Description = "Atoll capital",
                             IsActive = true,
@@ -1309,7 +1309,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3018,
-                            Country = "",
                             CountryId = 3,
                             Description = "Remote luxury resorts",
                             IsActive = true,
@@ -1318,7 +1317,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3019,
-                            Country = "",
                             CountryId = 3,
                             Description = "Exclusive resorts",
                             IsActive = true,
@@ -1327,7 +1325,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3020,
-                            Country = "",
                             CountryId = 3,
                             Description = "Beautiful lagoons and diving",
                             IsActive = true,
@@ -1336,7 +1333,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3021,
-                            Country = "",
                             CountryId = 3,
                             Description = "Shark diving destination",
                             IsActive = true,
@@ -1345,7 +1341,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3022,
-                            Country = "",
                             CountryId = 3,
                             Description = "Remote and unspoiled",
                             IsActive = true,
@@ -1354,7 +1349,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3023,
-                            Country = "",
                             CountryId = 3,
                             Description = "Second largest city, unique culture",
                             IsActive = true,
@@ -1363,7 +1357,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3024,
-                            Country = "",
                             CountryId = 3,
                             Description = "Most populous island in Addu",
                             IsActive = true,
@@ -1372,7 +1365,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 3025,
-                            Country = "",
                             CountryId = 3,
                             Description = "Tiger shark diving",
                             IsActive = true,
@@ -1381,7 +1373,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4001,
-                            Country = "",
                             CountryId = 4,
                             Description = "Holiest city in Islam, Kaaba and Hajj",
                             IsActive = true,
@@ -1390,7 +1381,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4002,
-                            Country = "",
                             CountryId = 4,
                             Description = "Prophet's Mosque and Islamic heritage",
                             IsActive = true,
@@ -1399,7 +1389,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4003,
-                            Country = "",
                             CountryId = 4,
                             Description = "Gateway to Makkah, Red Sea port city",
                             IsActive = true,
@@ -1408,7 +1397,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4004,
-                            Country = "",
                             CountryId = 4,
                             Description = "Summer resort in mountains near Makkah",
                             IsActive = true,
@@ -1417,7 +1405,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4005,
-                            Country = "",
                             CountryId = 4,
                             Description = "Red Sea diving and beaches",
                             IsActive = true,
@@ -1426,7 +1413,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4006,
-                            Country = "",
                             CountryId = 4,
                             Description = "Coastal city between Jeddah and Madinah",
                             IsActive = true,
@@ -1435,7 +1421,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4007,
-                            Country = "",
                             CountryId = 4,
                             Description = "Ancient Nabatean city of Hegra (Madain Saleh)",
                             IsActive = true,
@@ -1444,7 +1429,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4008,
-                            Country = "",
                             CountryId = 4,
                             Description = "Gateway to northwestern Saudi Arabia",
                             IsActive = true,
@@ -1453,7 +1437,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4009,
-                            Country = "",
                             CountryId = 4,
                             Description = "Futuristic mega-city project",
                             IsActive = true,
@@ -1462,7 +1445,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4010,
-                            Country = "",
                             CountryId = 4,
                             Description = "Capital city with modern attractions",
                             IsActive = true,
@@ -1471,7 +1453,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4011,
-                            Country = "",
                             CountryId = 4,
                             Description = "UNESCO heritage site, birthplace of Saudi state",
                             IsActive = true,
@@ -1480,7 +1461,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4012,
-                            Country = "",
                             CountryId = 4,
                             Description = "Agricultural region near Riyadh",
                             IsActive = true,
@@ -1489,7 +1469,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4013,
-                            Country = "",
                             CountryId = 4,
                             Description = "Major port city on Arabian Gulf",
                             IsActive = true,
@@ -1498,7 +1477,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4014,
-                            Country = "",
                             CountryId = 4,
                             Description = "Modern city with corniche and shopping",
                             IsActive = true,
@@ -1507,7 +1485,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4015,
-                            Country = "",
                             CountryId = 4,
                             Description = "Oil industry hub",
                             IsActive = true,
@@ -1516,7 +1493,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4016,
-                            Country = "",
                             CountryId = 4,
                             Description = "UNESCO heritage oasis with date palms",
                             IsActive = true,
@@ -1525,7 +1501,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4017,
-                            Country = "",
                             CountryId = 4,
                             Description = "Industrial city with beaches",
                             IsActive = true,
@@ -1534,7 +1509,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4018,
-                            Country = "",
                             CountryId = 4,
                             Description = "Historic coastal city",
                             IsActive = true,
@@ -1543,7 +1517,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4019,
-                            Country = "",
                             CountryId = 4,
                             Description = "Popular beach destination near Khobar",
                             IsActive = true,
@@ -1552,7 +1525,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4020,
-                            Country = "",
                             CountryId = 4,
                             Description = "Mountain resort city with cable cars",
                             IsActive = true,
@@ -1561,7 +1533,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4021,
-                            Country = "",
                             CountryId = 4,
                             Description = "Twin city to Abha",
                             IsActive = true,
@@ -1570,7 +1541,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4022,
-                            Country = "",
                             CountryId = 4,
                             Description = "Coastal city near Yemen border",
                             IsActive = true,
@@ -1579,7 +1549,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4023,
-                            Country = "",
                             CountryId = 4,
                             Description = "Pristine islands in Red Sea",
                             IsActive = true,
@@ -1588,7 +1557,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4024,
-                            Country = "",
                             CountryId = 4,
                             Description = "Historical city near Yemen",
                             IsActive = true,
@@ -1597,7 +1565,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4025,
-                            Country = "",
                             CountryId = 4,
                             Description = "Ancient rock art and historical sites",
                             IsActive = true,
@@ -1606,7 +1573,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4026,
-                            Country = "",
                             CountryId = 4,
                             Description = "Northern region capital",
                             IsActive = true,
@@ -1615,7 +1581,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4027,
-                            Country = "",
                             CountryId = 4,
                             Description = "Maldives of Saudi Arabia - pristine islands",
                             IsActive = true,
@@ -1624,7 +1589,6 @@ namespace ______________.Migrations
                         new
                         {
                             Id = 4028,
-                            Country = "",
                             CountryId = 4,
                             Description = "Luxury tourism destination under development",
                             IsActive = true,
@@ -1636,24 +1600,40 @@ namespace ______________.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("code");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Country");
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_countries_code");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_countries_name");
+
+                    b.ToTable("countries", (string)null);
 
                     b.HasData(
                         new
@@ -1878,6 +1858,9 @@ namespace ______________.Migrations
                     b.Property<int>("BookingId")
                         .HasColumnType("integer")
                         .HasColumnName("booking_id");
+
+                    b.Property<int>("CustomTripBookingId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("timestamp")
@@ -2151,9 +2134,6 @@ namespace ______________.Migrations
                     b.Property<int>("ActivityId")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("ActivityId1")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("CityId")
                         .HasColumnType("integer");
 
@@ -2195,7 +2175,7 @@ namespace ______________.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActivityId1");
+                    b.HasIndex("ActivityId");
 
                     b.HasIndex("CityId");
 
@@ -2257,133 +2237,171 @@ namespace ______________.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("id");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("concurrency_stamp");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("name");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("normalized_name");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
+                        .HasDatabaseName("ix_roles_normalized_name");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("roles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("claim_type");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("claim_value");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("role_id");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_role_claims_role_id");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("role_claims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("claim_type");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("claim_value");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_claims_user_id");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("user_claims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("login_provider");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("provider_key");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("provider_display_name");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_logins_user_id");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.ToTable("user_logins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("role_id");
 
                     b.HasKey("UserId", "RoleId");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_user_roles_role_id");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.ToTable("user_roles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("login_provider");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("name");
 
                     b.Property<string>("Value")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("value");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("user_tokens", (string)null);
+                });
+
+            modelBuilder.Entity("Fas7ny.Domain.Entities.Activity", b =>
+                {
+                    b.HasOne("Fas7ny.Domain.Entities.City", "City")
+                        .WithMany("Activities")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_activities_cities");
+
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.Booking", b =>
@@ -2396,6 +2414,32 @@ namespace ______________.Migrations
                         .HasConstraintName("fk_bookings_users");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Fas7ny.Domain.Entities.BookingCustomTripDetail", b =>
+                {
+                    b.HasOne("Fas7ny.Domain.Entities.BookingCustomTrip", "BookingCustomTrip")
+                        .WithMany("BookingCustomTripDetail")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Fas7ny.Domain.Entities.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Fas7ny.Domain.Entities.Hotel", "Hotel")
+                        .WithMany()
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("BookingCustomTrip");
+
+                    b.Navigation("City");
+
+                    b.Navigation("Hotel");
                 });
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.CartItems", b =>
@@ -2416,7 +2460,9 @@ namespace ______________.Migrations
 
                     b.HasOne("Fas7ny.Domain.Entities.Booking", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductId1");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Booking");
 
@@ -2451,11 +2497,14 @@ namespace ______________.Migrations
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.City", b =>
                 {
-                    b.HasOne("Fas7ny.Domain.Entities.Fas7ny.Domain.Entities.Country", null)
+                    b.HasOne("Fas7ny.Domain.Entities.Fas7ny.Domain.Entities.Country", "Country")
                         .WithMany("Cities")
                         .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_cities_countries");
+
+                    b.Navigation("Country");
                 });
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.Hotel", b =>
@@ -2654,7 +2703,7 @@ namespace ______________.Migrations
                 {
                     b.HasOne("Fas7ny.Domain.Entities.Activity", "Activity")
                         .WithMany()
-                        .HasForeignKey("ActivityId1")
+                        .HasForeignKey("ActivityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2775,6 +2824,11 @@ namespace ______________.Migrations
                     b.Navigation("Payment");
                 });
 
+            modelBuilder.Entity("Fas7ny.Domain.Entities.BookingCustomTrip", b =>
+                {
+                    b.Navigation("BookingCustomTripDetail");
+                });
+
             modelBuilder.Entity("Fas7ny.Domain.Entities.Carts", b =>
                 {
                     b.Navigation("CartItems");
@@ -2793,6 +2847,8 @@ namespace ______________.Migrations
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.City", b =>
                 {
+                    b.Navigation("Activities");
+
                     b.Navigation("Hotels");
 
                     b.Navigation("Packages");

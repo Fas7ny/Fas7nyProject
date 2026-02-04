@@ -2,7 +2,7 @@
 
 namespace Fas7ny.Application.ServivesInterfaces
 {
-    public interface IGeoapifySearchService
+    public interface GeoapifyPropertiesIGeoapifySearchService
     {
         public interface IGeoapifySearchService
         {

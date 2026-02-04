@@ -2,10 +2,10 @@
 {
     public class CartItems
     {
-        public Guid Id { get; set; }
-        public Guid CartId { get; set; }
+        public int Id { get; set; }
+        public int CartId { get; set; }
         public Carts? Cart { get; set; }
-        public Guid ProductId { get; set; }
+        public int ProductId { get; set; }
         public Booking? Product { get; set; }
         public int Quantity { get; set; }
         public int BookingId { get; set; }

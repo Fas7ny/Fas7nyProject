@@ -1,6 +1,4 @@
-﻿using Fas7ny.Application.DTOs.CartItem.Response;
-
-namespace Fas7ny.Application.DTOs.Cart.Response
+﻿namespace Fas7ny.Application.DTOs.Cart.Response
 {
     public class CartDetailsResponse
     {
