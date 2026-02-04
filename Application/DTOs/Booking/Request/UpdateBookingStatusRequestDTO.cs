@@ -14,7 +14,6 @@ namespace Fas7ny.Application.DTOs.Booking.Request
             ErrorMessage = "Status must be Pending, Confirmed, Cancelled, or Completed")]
         public string Status { get; set; }
 
-        [StringLength(500, ErrorMessage = "Notes cannot exceed 500 characters")]
-        public string Notes { get; set; }
+
     }
 }

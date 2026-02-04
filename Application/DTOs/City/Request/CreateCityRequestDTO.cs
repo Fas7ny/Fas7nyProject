@@ -4,6 +4,11 @@ namespace Fas7ny.Application.DTOs.City.Request
 {
     public class CreateCityRequestDTO
     {
+        public string address;
+        public string priceRanage;
+        public int hotelId;
+
+        public int id { get; set; }
         [Required(ErrorMessage = "City name is required")]
         [StringLength(100, ErrorMessage = "City name cannot exceed 100 characters")]
         public string Name { get; set; }
@@ -18,5 +23,10 @@ namespace Fas7ny.Application.DTOs.City.Request
         [Url(ErrorMessage = "Invalid URL format")]
         [StringLength(500, ErrorMessage = "Image URL cannot exceed 500 characters")]
         public string ImageUrl { get; set; }
+        public int CityId { get; set; }
+        public string Cuisine { get; set; }
+        public int CategoryId { get; set; }
+        public int DurationDays { get; set; }
+        public decimal CuisinePrice { get; set; }
     }
 }

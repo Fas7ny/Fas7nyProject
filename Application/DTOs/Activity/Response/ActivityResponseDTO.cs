@@ -11,6 +11,6 @@
         public int Duration { get; set; }
         public string Category { get; set; }
         public DateTime CreatedAt { get; set; }
-
+        public string? PictureUrl { get; set; }
     }
 }

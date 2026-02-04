@@ -1,21 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Fas7ny.Application.DTOs.Ai.Request
+﻿namespace Fas7ny.Application.DTOs.Ai.Request
 {
     public class PersonalizedDestinationRequestDTO
     {
-        [Required(ErrorMessage = "User ID is required")]
-        public string UserId { get; set; }
-
-        [Range(1, 20, ErrorMessage = "Number of destinations must be between 1 and 20")]
-        public int NumberOfDestinations { get; set; } = 5;
-
-        [Range(100, 1000000, ErrorMessage = "Budget must be between 100 and 1,000,000")]
-        public decimal? Budget { get; set; }
-
-        [DataType(DataType.Date)]
-        public DateTime? TravelDate { get; set; }
-
-        public List<string> MustHaveFeatures { get; set; } = new List<string>();
+        public string Query { get; set; } = string.Empty;
+        public string? Country { get; set; }
+        public string? Language { get; set; }
+        public int Limit { get; set; } = 5;
     }
 }

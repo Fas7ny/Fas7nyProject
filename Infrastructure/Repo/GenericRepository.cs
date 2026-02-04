@@ -26,15 +26,19 @@ namespace Fas7ny.Domain.Repo
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        // FIX: FindAsync should return a SINGLE item (Task<T>)
+        public async Task<T> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
+
+        // FIX: FindManyAsync returns MULTIPLE items (Task<IEnumerable<T>>)
+        public async Task<IEnumerable<T>> FindManyAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
-        public async Task<T> FindSingleAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbSet.FirstOrDefaultAsync(predicate);
-        }
+
 
         public async Task<IEnumerable<T>> GetAllWithIncludesAsync(params Expression<Func<T, object>>[] includes)
         {
@@ -69,35 +73,30 @@ namespace Fas7ny.Domain.Repo
 
         public Task UpdateAsync(T entity)
         {
-
             _dbSet.Update(entity);
             return Task.CompletedTask;
         }
 
         public Task UpdateRangeAsync(IEnumerable<T> entities)
         {
-
             _dbSet.UpdateRange(entities);
             return Task.CompletedTask;
         }
 
         public Task DeleteAsync(T entity)
         {
-
             _dbSet.Remove(entity);
             return Task.CompletedTask;
         }
 
         public Task DeleteRangeAsync(IEnumerable<T> entities)
         {
-
             _dbSet.RemoveRange(entities);
             return Task.CompletedTask;
         }
 
         public async Task DeleteByIdAsync(int id)
         {
-
             var entity = await GetByIdAsync(id);
             if (entity != null)
             {
@@ -152,11 +151,5 @@ namespace Fas7ny.Domain.Repo
 
             return (items, totalCount);
         }
-
-        public Task<IEnumerable<T>> FindAsync(string searchTerm, Expression<Func<T, bool>> predicate)
-        {
-            throw new NotImplementedException();
-        }
     }
-
 }

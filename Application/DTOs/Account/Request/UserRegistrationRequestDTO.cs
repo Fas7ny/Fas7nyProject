@@ -23,7 +23,7 @@ namespace Fas7ny.Application.DTOs.Account.Request
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         public string ConfirmPassword { get; set; }
 
-
+        public string userName { get; set; }
         public string Address { get; set; }
     }
 }

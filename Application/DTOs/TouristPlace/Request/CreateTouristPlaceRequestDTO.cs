@@ -27,5 +27,6 @@ namespace Fas7ny.Application.DTOs.TouristPlace.Request
         [Required(ErrorMessage = "Opening hours is required")]
         [StringLength(100, ErrorMessage = "Opening hours cannot exceed 100 characters")]
         public string OpeningHours { get; set; }
+        public int CategoryId { get; set; }
     }
 }

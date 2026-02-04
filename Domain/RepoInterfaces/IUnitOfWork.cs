@@ -23,6 +23,13 @@ namespace Fas7ny.Domain.RepoInterfaces
         IGenericRepository<TouristPlace> TouristPlaces { get; }
         IGenericRepository<Bus> Buses { get; }
         IGenericRepository<Flight> Flights { get; }
+        IGenericRepository<CartItems> CartItem { get; }
+        IGenericRepository<Carts> Carts { get; }
+        IGenericRepository<Review> Reviews { get; }
+        IGenericRepository<Payment> Payments { get; }
+        IGenericRepository<BookingCustomTrip> BookingCustomTrips { get; }
+        IGenericRepository<UserPreference> UserPreferences { get; }
+
 
         // Generic method to get any repository
         IGenericRepository<T> Repository<T>() where T : class;

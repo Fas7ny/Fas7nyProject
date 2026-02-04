@@ -9,6 +9,6 @@
         public int BookingId { get; set; }
         public Booking? Book { get; set; }
         public string Status { get; set; }
-
+        public int CustomTripBookingId { get; set; }
     }
 }

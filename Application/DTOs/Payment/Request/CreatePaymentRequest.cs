@@ -8,6 +8,9 @@ namespace Fas7ny.Application.DTOs.Payment.Request
         [Required(ErrorMessage = "UserId is required.")]
         public string UserId { get; set; } = string.Empty;
 
+        public int BookingId { get; set; }
+
+
         [Required(ErrorMessage = "Amount is required.")]
         [Range(1, double.MaxValue, ErrorMessage = "Amount must be greater than zero.")]
         public decimal Amount { get; set; }
@@ -30,6 +33,9 @@ namespace Fas7ny.Application.DTOs.Payment.Request
 
         [StringLength(200, ErrorMessage = "Description must not exceed 200 characters.")]
         public string? Description { get; set; }
+        public string Status { get; set; }
+
+
     }
 
 }

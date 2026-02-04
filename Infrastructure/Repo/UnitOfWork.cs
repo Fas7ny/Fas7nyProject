@@ -3,6 +3,7 @@ using Fas7ny.Domain.Entities.Fas7ny.Domain.Entities;
 using Fas7ny.Domain.Entities.Transpotrations;
 using Fas7ny.Domain.Repo;
 using Fas7ny.Domain.RepoInterfaces;
+using Microsoft.EntityFrameworkCore;
 using TourismApp.Data;
 
 namespace Fas7ny.Infrastructure.Repo
@@ -29,6 +30,15 @@ namespace Fas7ny.Infrastructure.Repo
         private IGenericRepository<TouristPlace> _touristPlaces;
         private IGenericRepository<Bus> _buses;
         private IGenericRepository<Flight> _flights;
+        private IGenericRepository<Carts> _carts;
+        private IGenericRepository<CartItems> _cartitems;
+        private IGenericRepository<Review> _reviews;
+        private IGenericRepository<Payment> _payments;
+        private IGenericRepository<BookingCustomTrip> _bookingCustomTrip;
+        private IGenericRepository<UserPreference> _userPerfernce;
+
+
+
 
         public UnitOfWork(TourismDbContext context)
         {
@@ -37,9 +47,23 @@ namespace Fas7ny.Infrastructure.Repo
         }
 
         // Repository Properties
+        public IGenericRepository<Carts> Carts =>
+            _carts ??= new GenericRepository<Carts>(_context);
+
+        public IGenericRepository<CartItems> CartItem =>
+            _cartitems ??= new GenericRepository<CartItems>(_context);
+        public IGenericRepository<UserPreference> UserPerfernce =>
+            _userPerfernce ??= new GenericRepository<UserPreference>(_context);
+        public IGenericRepository<Review> Reviews =>
+            _reviews ??= new GenericRepository<Review>(_context);
+        public IGenericRepository<Payment> Payment =>
+            _payments ??= new GenericRepository<Payment>(_context);
+
+
+
         public IGenericRepository<Activity> Activities =>
             _activities ??= new GenericRepository<Activity>(_context);
-       
+
 
         public IGenericRepository<Booking> Bookings =>
             _bookings ??= new GenericRepository<Booking>(_context);
@@ -83,8 +107,15 @@ namespace Fas7ny.Infrastructure.Repo
         public IGenericRepository<Flight> Flights =>
             _flights ??= new GenericRepository<Flight>(_context);
 
-        public IGenericRepository<Category> Categories => 
+        public IGenericRepository<Category> Categories =>
             _categories ??= new GenericRepository<Category>(_context);
+
+        public IGenericRepository<Payment> Payments => throw new NotImplementedException();
+
+        public IGenericRepository<BookingCustomTrip> BookingCustomTrips =>
+            _bookingCustomTrip ??= new GenericRepository<BookingCustomTrip>(_context);
+
+        public IGenericRepository<UserPreference> UserPreferences => _userPerfernce ??= new GenericRepository<UserPreference>(_context);
 
         // Generic Repository Access
         public IGenericRepository<T> Repository<T>() where T : class
@@ -100,7 +131,15 @@ namespace Fas7ny.Infrastructure.Repo
         // Save Changes
         public async Task<int> SaveChangesAsync()
         {
-            return await _context.SaveChangesAsync();
+            try
+            {
+                return await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                var innerMessage = ex.InnerException?.Message;
+                throw new Exception(innerMessage, ex);
+            }
         }
 
         public int SaveChanges()
