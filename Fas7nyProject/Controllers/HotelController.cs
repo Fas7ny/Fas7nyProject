@@ -20,6 +20,7 @@ namespace Fas7nyProject.Presentation.Controllers
             _unitOfWork = unitOfWork;
         }
 
+        #region CRUD
 
         [Authorize(Roles = "Admin")]
         [HttpPost("hotel")]
@@ -261,5 +262,10 @@ namespace Fas7nyProject.Presentation.Controllers
         }
 
 
+
+
+        #endregion 
+
     }
+
 }

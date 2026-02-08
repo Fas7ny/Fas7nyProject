@@ -18,37 +18,41 @@ namespace Fas7nyProject.Presentation.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-
-
+        #region CRUD
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create(
-           [FromForm] CreateReviewRequest dto)
+        [Authorize]
+        public async Task<IActionResult> Create([FromForm] CreateReviewRequest dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                      ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("User not authenticated");
 
 
-            var Review = new Review
+            var review = new Review
             {
-                Comment = dto.Comment,
+                PackageId = dto.PackageId,
+                UserId = userId,
                 Rating = dto.Rating,
-
+                Comment = dto.Comment,
+                CreatedAt = DateTime.UtcNow
             };
 
-            await _unitOfWork.Reviews.AddAsync(Review);
+            await _unitOfWork.Reviews.AddAsync(review);
             await _unitOfWork.SaveChangesAsync();
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = Review.Id },
-                MapToDto(Review)
+                new { id = review.Id },
+                MapToDto(review)
             );
         }
 
-
-
+        [Authorize]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -129,6 +133,9 @@ namespace Fas7nyProject.Presentation.Controllers
             var allReviews = await _unitOfWork.Reviews.GetAllAsync();
             return Ok(allReviews.Select(MapToDto));
         }
+
+
+        #endregion
         private static ReviewDetailsResponse MapToDto(Review review) => new()
         {
             Id = review.Id,

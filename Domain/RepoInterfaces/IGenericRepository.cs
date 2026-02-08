@@ -7,6 +7,13 @@ namespace Fas7ny.Domain.RepoInterfaces
         // Get Operations
         Task<T> GetByIdAsync(int id);
         Task<IEnumerable<T>> GetAllAsync();
+        IQueryable<T> Query();
+
+        Task<(IEnumerable<T> Items, int TotalCount)> GetPagedWithIncludesAsync(
+    int page,
+    int pageSize,
+    params Expression<Func<T, object>>[] includes
+);
 
         // FIX: Add method to find single item
         Task<T> FindAsync(Expression<Func<T, bool>> predicate);
@@ -18,6 +25,10 @@ namespace Fas7ny.Domain.RepoInterfaces
         // Get with includes
         Task<IEnumerable<T>> GetAllWithIncludesAsync(params Expression<Func<T, object>>[] includes);
         Task<T> GetByIdWithIncludesAsync(int id, params Expression<Func<T, object>>[] includes);
+        Task<IEnumerable<T>> FindWithIncludesAsync(
+    Expression<Func<T, bool>> predicate,
+    params Expression<Func<T, object>>[] includes
+);
 
         // Add Operations
         Task<T> AddAsync(T entity);
@@ -44,5 +55,8 @@ namespace Fas7ny.Domain.RepoInterfaces
             int pageSize,
             Expression<Func<T, bool>> filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null);
+        Task<IEnumerable<T>> FindAllAsync(
+            Expression<Func<T, bool>> predicate
+        );
     }
 }

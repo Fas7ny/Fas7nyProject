@@ -1,8 +1,8 @@
 ﻿using Fas7ny.Application.DTOs.Ai.Request;
-using Fas7ny.Application.DTOs.Ai.Response;
 using Fas7ny.Application.ServivesInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Fas7nyProject.Presentation.Controllers
 {
@@ -10,155 +10,75 @@ namespace Fas7nyProject.Presentation.Controllers
     [ApiController]
     public class AiController : ControllerBase
     {
-        private readonly IAiService _service;
+        private readonly IAiService _aiService;
         private readonly ILogger<AiController> _logger;
 
         public AiController(IAiService aiService, ILogger<AiController> logger)
         {
+            _aiService = aiService;
             _logger = logger;
-            _service = aiService;
         }
 
-        #region User Behavior Analysis
+        #region Helpers
 
-        [HttpPost("AnalyzeUserBehavior")]
+        private string? GetCurrentUserId()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+        }
+
+        #endregion
+
+        #region User Behavior
+
+        [HttpPost("analyze-user-behavior")]
         [Authorize(Roles = "Admin")]
-        [ProducesResponseType(typeof(UserBehaviorAnalysisResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateAnalyzeUserBehavior(
+        public async Task<IActionResult> AnalyzeUserBehavior(
             [FromBody] UserBehaviorAnalysisRequestDTO dto)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                var result = await _service.AnalyzeUserBehaviorAsync(dto);
+            var adminId = GetCurrentUserId();
 
-                if (result == null)
-                {
-                    return NotFound(new { message = $"No behavior data found for user {dto.UserId}" });
-                }
+            _logger.LogInformation(
+                "Admin {AdminId} analyzing user behavior",
+                adminId
+            );
 
-                return Ok(result);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogWarning(ex, "Invalid request for user behavior analysis");
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex,
-                    "AnalyzeUserBehavior failed | UserId: {UserId}",
-                    dto.UserId);
+            var result = await _aiService.AnalyzeUserBehaviorAsync(dto);
 
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    new { message = "An error occurred while analyzing user behavior" }
-                );
-            }
-
-
+            return result == null
+                ? NotFound()
+                : Ok(result);
         }
 
-        [HttpGet("AnalyzeUserBehavior")]
-        [Authorize(Roles = "Admin")]
-        [ProducesResponseType(typeof(List<UserBehaviorAnalysisResponseDTO>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAnalyzeUserBehavior(
-            [FromQuery] string? userId = null,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10)
-        {
-            try
-            {
-                // This would typically fetch from a database of past analyses
-                // For now, return a placeholder response
-                _logger.LogInformation("Fetching user behavior analyses. UserId: {UserId}, Page: {Page}",
-                    userId, page);
-
-                // TODO: Implement retrieval from database/cache
-                return Ok(new
-                {
-                    message = "User behavior analysis history",
-                    page,
-                    pageSize,
-                    data = new List<UserBehaviorAnalysisResponseDTO>()
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving user behavior analyses");
-                return StatusCode(500, new { message = "An error occurred while retrieving analyses" });
-            }
-        }
-
-        [HttpGet("{userId}/behavior-summary")]
-        [Authorize(Roles = "Admin")]
-        [ProducesResponseType(typeof(UserBehaviorAnalysisResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpGet("behavior-summary")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> GetUserBehaviorSummary(
-            string userId,
             [FromQuery] int days = 30)
         {
-            try
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
+
+            var request = new UserBehaviorAnalysisRequestDTO
             {
-                var request = new UserBehaviorAnalysisRequestDTO
-                {
-                    UserId = userId,
-                    AnalysisPeriodDays = days,
-                    IncludePredictions = true,
-                    IncludeRecommendations = true
-                };
+                AnalysisPeriodDays = days,
+                IncludePredictions = true,
+                IncludeRecommendations = true
+            };
 
-                var result = await _service.AnalyzeUserBehaviorAsync(request);
+            _logger.LogInformation(
+                "Fetching behavior summary for user {UserId}",
+                userId
+            );
 
-                if (result == null)
-                {
-                    return NotFound(new { message = $"User {userId} not found" });
-                }
+            var result = await _aiService.AnalyzeUserBehaviorAsync(request);
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving behavior summary for user {UserId}", userId);
-                return StatusCode(500, new { message = "An error occurred while retrieving behavior summary" });
-            }
-        }
-
-        [HttpPost("batch-analyze")]
-        [Authorize(Roles = "Admin")]
-        [ProducesResponseType(typeof(IEnumerable<UserBehaviorAnalysisResponseDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> BatchAnalyzeUserBehavior(
-            [FromBody] List<UserBehaviorAnalysisRequestDTO> requests)
-        {
-            try
-            {
-                if (requests == null || !requests.Any())
-                {
-                    return BadRequest(new { message = "Request list cannot be empty" });
-                }
-
-                if (requests.Count > 100)
-                {
-                    return BadRequest(new { message = "Maximum 100 users can be analyzed at once" });
-                }
-
-                var tasks = requests.Select(r => _service.AnalyzeUserBehaviorAsync(r));
-                var results = await Task.WhenAll(tasks);
-
-                return Ok(results.Where(r => r != null));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in batch analysis");
-                return StatusCode(500, new { message = "An error occurred during batch analysis" });
-            }
+            return result == null
+                ? NotFound()
+                : Ok(result);
         }
 
         #endregion
@@ -166,182 +86,46 @@ namespace Fas7nyProject.Presentation.Controllers
         #region Chat
 
         [AllowAnonymous]
-        [HttpPost("ChatWithAI")]
-        [ProducesResponseType(typeof(AiChatResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ChatWithAI([FromBody] AiChatRequestDto userQuery)
+        [HttpPost("chat")]
+        public async Task<IActionResult> Chat([FromBody] AiChatRequestDto dto)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                var result = await _service.ChatAsync(userQuery);
+            var userId = GetCurrentUserId() ?? "anonymous";
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in ChatWithAI for user {UserId}", userQuery?.UserId);
-                return StatusCode(500, new { message = "An error occurred while processing your message" });
-            }
-        }
+            _logger.LogInformation(
+                "Chat request from {UserId}",
+                userId
+            );
 
-        [AllowAnonymous]
-        [HttpGet("chat")]
-        [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetChat(
-            [FromQuery] string? userId = null,
-            [FromQuery] string? conversationId = null,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 20)
-        {
-            try
-            {
-                // TODO: Implement chat history retrieval from database
-                _logger.LogInformation("Fetching chat history. UserId: {UserId}, ConversationId: {ConversationId}",
-                    userId, conversationId);
-
-                return Ok(new
-                {
-                    message = "Chat history",
-                    page,
-                    pageSize,
-                    data = new List<object>() // Replace with actual chat history
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving chat history");
-                return StatusCode(500, new { message = "An error occurred while retrieving chat history" });
-            }
+            var result = await _aiService.ChatAsync(dto);
+            return Ok(result);
         }
 
         #endregion
 
         #region Package Generation
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("generate-package")]
-        [Authorize]
-        [ProducesResponseType(typeof(GeneratedPackageResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GeneratePackage([FromBody] GeneratePackageRequestDTO dto)
+        public async Task<IActionResult> GeneratePackage(
+            [FromBody] GeneratePackageRequestDTO dto)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                _logger.LogInformation("Generating package for user {UserId} to {Destination}",
-                    dto.UserId, dto.DestinationCity);
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
 
-                var result = await _service.GeneratePackageAsync(dto);
+            _logger.LogInformation(
+                "Generating package for user {UserId}",
+                userId
+            );
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating package for user {UserId}", dto?.UserId);
-
-                return StatusCode(500, new
-                {
-                    message = "An error occurred while generating the package",
-                    error = ex.Message,
-                    inner = ex.InnerException?.Message
-                });
-            }
-
-        }
-
-        [HttpPost("regenerate-package")]
-        [Authorize]
-        [ProducesResponseType(typeof(GeneratedPackageResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> RegeneratePackage([FromBody] RegeneratePackageRequestDTO dto)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                _logger.LogInformation("Regenerating package {PackageId} for user {UserId}",
-                    dto.PackageId, dto.UserId);
-
-                // TODO: Fetch original package data
-                // TODO: Apply modifications based on feedback
-                // TODO: Call GeneratePackageAsync with updated parameters
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Package regenerated successfully",
-                    packageId = dto.PackageId
-                    // Include regenerated package data
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error regenerating package {PackageId}", dto?.PackageId);
-                return StatusCode(500, new { message = "An error occurred while regenerating the package" });
-            }
-        }
-
-        [HttpPost("save-generated-package")]
-        [Authorize]
-        [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> SaveGeneratedPackage([FromBody] SaveGeneratedPackageRequestDTO dto)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                _logger.LogInformation("Saving generated package '{PackageName}' for user {UserId}",
-                    dto.PackageName, dto.UserId);
-
-                // TODO: Save package to database
-                // TODO: Create associated records (hotels, activities, itinerary)
-
-                var packageId = Guid.NewGuid(); // Replace with actual saved package ID
-
-                return CreatedAtAction(
-                    nameof(GetPackageById),
-                    new { id = packageId },
-                    new
-                    {
-                        success = true,
-                        message = "Package saved successfully",
-                        packageId,
-                        packageName = dto.PackageName
-                    });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving generated package for user {UserId}", dto?.UserId);
-                return StatusCode(500, new { message = "An error occurred while saving the package" });
-            }
-        }
-
-        [HttpGet("packages/{id}")]
-        [Authorize]
-        public async Task<IActionResult> GetPackageById(Guid id)
-        {
-            // TODO: Implement package retrieval
-            return Ok(new { id, message = "Package details" });
+            var result = await _aiService.GeneratePackageAsync(dto);
+            return Ok(result);
         }
 
         #endregion
@@ -349,126 +133,36 @@ namespace Fas7nyProject.Presentation.Controllers
         #region Recommendations
 
         [AllowAnonymous]
-        [HttpGet("get-recommendations")]
-        [ProducesResponseType(typeof(RecommendationResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpGet("recommendations")]
         public async Task<IActionResult> GetRecommendations(
-            [FromQuery] string? userId = null,
             [FromQuery] string type = "Destination",
-            [FromQuery] int count = 10,
-            [FromQuery] decimal? budget = null,
-            [FromQuery] int? duration = null,
-            [FromQuery] string? travelStyle = null,
-            [FromQuery] string? destination = null)
+            [FromQuery] int count = 10)
         {
-            try
+            var userId = GetCurrentUserId();
+
+            var request = new RecommendationRequestDTO
             {
-                var request = new RecommendationRequestDTO
-                {
-                    UserId = userId ?? "anonymous",
-                    RecommendationType = type,
-                    NumberOfRecommendations = count,
-                    Budget = budget,
-                    DurationDays = duration,
-                    TravelStyle = travelStyle,
-                    Destination = destination,
-                    UsePersonalizedData = !string.IsNullOrEmpty(userId)
-                };
+                RecommendationType = type,
+                NumberOfRecommendations = count,
+                UsePersonalizedData = userId != null
+            };
 
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                _logger.LogInformation("Getting {Type} recommendations for user {UserId}",
-                    type, userId ?? "anonymous");
-
-                var result = await _service.GetRecommendationsAsync(request);
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting recommendations");
-                return StatusCode(500, new { message = "An error occurred while getting recommendations" });
-            }
-        }
-
-        [AllowAnonymous]
-        [HttpPost("get-recommendations")]
-        [ProducesResponseType(typeof(RecommendationResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetRecommendationsPost([FromBody] RecommendationRequestDTO dto)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                _logger.LogInformation("Getting {Type} recommendations for user {UserId}",
-                    dto.RecommendationType, dto.UserId);
-
-                var result = await _service.GetRecommendationsAsync(dto);
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting recommendations");
-                return StatusCode(500, new { message = "An error occurred while getting recommendations" });
-            }
-        }
-
-        [AllowAnonymous]
-        [HttpPost("similar-recommendations")]
-        [ProducesResponseType(typeof(RecommendationResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetSimilarRecommendations([FromBody] SimilarItemRecommendationRequestDTO dto)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                _logger.LogInformation("Getting similar {ItemType} recommendations for item {ItemId}",
-                    dto.ItemType, dto.ItemId);
-
-                // TODO: Implement similar item recommendations
-                // This would analyze the item and find similar items based on characteristics
-
-                return Ok(new RecommendationResponseDTO
-                {
-                    Success = true,
-                    Message = $"Similar {dto.ItemType} recommendations",
-                    Recommendations = new List<RecommendationItem>(),
-                    GeneratedAt = DateTime.UtcNow
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting similar recommendations");
-                return StatusCode(500, new { message = "An error occurred while getting similar recommendations" });
-            }
+            var result = await _aiService.GetRecommendationsAsync(request);
+            return Ok(result);
         }
 
         #endregion
 
-        #region Health Check
+        #region Health
 
         [AllowAnonymous]
         [HttpGet("health")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult HealthCheck()
+        public IActionResult Health()
         {
             return Ok(new
             {
                 status = "healthy",
-                service = "AI Service",
+                service = "Fas7ny AI",
                 timestamp = DateTime.UtcNow
             });
         }

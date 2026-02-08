@@ -4,23 +4,18 @@ namespace Fas7ny.Application.DTOs.Booking.Request
 {
     public class CreateBookingRequestDTO
     {
-        [Required(ErrorMessage = "User ID is required")]
-        public string UserId { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string BookingType { get; set; } = null!;
 
-        public string BookingType { get; set; }
+        [Required]
+        [Range(1, int.MaxValue)]
+        public int BookingItemId { get; set; }
 
-        [Required(ErrorMessage = "Booking Item ID is required")]
-        public string BookingItemId { get; set; } // خليها int
-
-        [Required(ErrorMessage = "Start date is required")]
+        [Required]
         public DateTime StartDate { get; set; }
 
-        [Required(ErrorMessage = "End date is required")]
+        [Required]
         public DateTime EndDate { get; set; }
-
-        [Required(ErrorMessage = "Total amount is required")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Total amount must be greater than 0")]
-        public decimal TotalAmount { get; set; }
     }
-
 }

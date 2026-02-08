@@ -24,7 +24,7 @@ namespace Fas7nyProject.Presentation.Controllers
             _logger = logger;
         }
 
-
+        [Authorize]
         [HttpGet("my-cart")]
         public async Task<IActionResult> GetMyCart()
         {
@@ -44,7 +44,6 @@ namespace Fas7nyProject.Presentation.Controllers
                 Id = ci.Id,
                 CartId = ci.CartId,
                 BookingId = ci.BookingId,
-                ProductId = ci.ProductId,
                 Quantity = ci.Quantity,
                 Price = ci.Price,
                 ItemTotal = ci.Price * ci.Quantity
@@ -53,7 +52,7 @@ namespace Fas7nyProject.Presentation.Controllers
             return Ok(response);
         }
 
-
+        [Authorize]
         [HttpPost("add-item")]
         public async Task<IActionResult> AddItem([FromBody] AddCartItemRequest dto)
         {
@@ -82,6 +81,7 @@ namespace Fas7nyProject.Presentation.Controllers
                 {
                     UserId = userId,
                     CreatedAt = DateTime.UtcNow
+
                 };
                 await _unitOfWork.Carts.AddAsync(cart);
                 await _unitOfWork.SaveChangesAsync();
@@ -101,19 +101,12 @@ namespace Fas7nyProject.Presentation.Controllers
             else
             {
                 int productId = 0;
-                if (!string.IsNullOrEmpty(booking.BookingItemId))
-                {
-                    if (!int.TryParse(booking.BookingItemId, out productId))
-                    {
-                        return BadRequest(new { message = "Invalid booking item ID format" });
-                    }
-                }
 
                 cartItem = new CartItems
                 {
                     CartId = cart.Id,
                     BookingId = booking.Id,
-                    ProductId = productId,
+
                     Quantity = dto.Quantity,
                     Price = booking.TotalPrice
                 };
@@ -131,11 +124,11 @@ namespace Fas7nyProject.Presentation.Controllers
             });
         }
 
-
+        [Authorize]
         [HttpPut("items/{itemId:int}")]
         public async Task<IActionResult> UpdateQuantity(
-            int itemId,
-            [FromBody] UpdateCartItemQuantityRequest dto)
+         int itemId,
+        [FromBody] UpdateCartItemQuantityRequest dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -146,7 +139,7 @@ namespace Fas7nyProject.Presentation.Controllers
 
             var cartItem = await _unitOfWork.CartItem.GetByIdAsync(itemId);
             if (cartItem == null)
-                return NotFound();
+                return NotFound(new { message = "Cart item not found" });
 
             var cart = await _unitOfWork.Carts.GetByIdAsync(cartItem.CartId);
             if (cart == null)
@@ -158,8 +151,6 @@ namespace Fas7nyProject.Presentation.Controllers
             cartItem.Quantity = dto.Quantity;
 
             await _unitOfWork.CartItem.UpdateAsync(cartItem);
-            cart.UpdatedAt = DateTime.UtcNow;
-            await _unitOfWork.Carts.UpdateAsync(cart);
             await _unitOfWork.SaveChangesAsync();
 
             return Ok(new
@@ -179,24 +170,19 @@ namespace Fas7nyProject.Presentation.Controllers
 
             var cartItem = await _unitOfWork.CartItem.GetByIdAsync(itemId);
             if (cartItem == null)
-                return NotFound();
+                return NotFound(new { message = "Cart item not found" });
 
             var cart = await _unitOfWork.Carts.GetByIdAsync(cartItem.CartId);
-            if (cart == null)
-                return NotFound(new { message = "Cart not found" });
-
-            if (cart.UserId != userId)
+            if (cart == null || cart.UserId != userId)
                 return Forbid();
 
             await _unitOfWork.CartItem.DeleteAsync(cartItem);
 
             cart.UpdatedAt = DateTime.UtcNow;
-            await _unitOfWork.Carts.UpdateAsync(cart);
             await _unitOfWork.SaveChangesAsync();
 
             return Ok(new { message = "Item removed from cart" });
         }
-
 
         [HttpDelete("clear")]
         public async Task<IActionResult> ClearCart()
@@ -206,17 +192,17 @@ namespace Fas7nyProject.Presentation.Controllers
                 return Unauthorized();
 
             var cart = await _unitOfWork.Carts.FindAsync(c => c.UserId == userId);
-
             if (cart == null)
                 return Ok(new { message = "Cart already empty" });
 
             var items = await _unitOfWork.CartItem.FindManyAsync(ci => ci.CartId == cart.Id);
 
-            foreach (var item in items)
-                await _unitOfWork.CartItem.DeleteAsync(item);
+            if (!items.Any())
+                return Ok(new { message = "Cart already empty" });
 
-            cart.UpdatedAt = DateTime.Now;
-            await _unitOfWork.Carts.UpdateAsync(cart);
+            await _unitOfWork.CartItem.DeleteRangeAsync(items);
+
+            cart.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.SaveChangesAsync();
 
             return Ok(new

@@ -13,6 +13,8 @@ namespace Fas7ny.Domain.Entities
 
         // Navigation properties
         public virtual Country Country { get; set; } = null!;
+        public ICollection<Destination> Destinations { get; set; }
+        = new List<Destination>();
         public virtual ICollection<Activity> Activities { get; set; } = new List<Activity>();
         public virtual ICollection<Hotel> Hotels { get; set; } = new List<Hotel>();
         public virtual ICollection<Restaurant> Restaurants { get; set; } = new List<Restaurant>();

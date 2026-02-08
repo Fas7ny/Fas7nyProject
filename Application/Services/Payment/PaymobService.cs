@@ -1,136 +1,190 @@
 ﻿using Fas7ny.Application.DTOs.Payment.Request;
-using Fas7ny.Application.DTOs.Payment.Response;
 using Fas7ny.Application.ServivesInterfaces;
-using Microsoft.Extensions.Options;
-using System.Net.Http.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Text;
 using System.Text.Json;
 
-namespace Fas7ny.Application.Services.Payment
-{
-    public class PaymobService : IPaymobService
+
+    namespace Fas7ny.Application.Services.PaymentService
     {
-        private readonly HttpClient _httpClient;
-        private readonly PaymobOptions _options;
-
-        public PaymobService(HttpClient httpClient, IOptions<PaymobOptions> options)
+        public class PaymobService : IPaymobService
         {
-            _httpClient = httpClient;
-            _options = options.Value;
-            _httpClient.BaseAddress = new Uri(_options.BaseUrl);
-        }
+            private readonly HttpClient _httpClient;
+            private readonly IConfiguration _configuration;
+            private readonly ILogger<PaymobService> _logger;
+            private readonly string _apiKey;
+            private readonly string _integrationId;
+            private readonly string _currency;
 
-        public async Task<string> GetTokenAsync()
-        {
-            var requestBody = new { api_key = _options.ApiKey };
-
-            var response = await _httpClient.PostAsJsonAsync("/auth/tokens", requestBody);
-
-            if (!response.IsSuccessStatusCode)
+            public PaymobService(
+                HttpClient httpClient,
+                IConfiguration configuration,
+                ILogger<PaymobService> logger)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new ApplicationException($"Failed to get Paymob token. Status: {response.StatusCode}, Error: {errorContent}");
+                _httpClient = httpClient;
+                _configuration = configuration;
+                _logger = logger;
+
+                _apiKey = configuration["Paymob:ApiKey"]
+                    ?? throw new ArgumentNullException("Paymob:ApiKey is missing");
+                _integrationId = configuration["Paymob:IntegrationId"]
+                    ?? throw new ArgumentNullException("Paymob:IntegrationId is missing");
+                _currency = configuration["Paymob:Currency"] ?? "EGP";
+
+                var baseUrl = configuration["Paymob:BaseUrl"] ?? "https://accept.paymob.com/api";
+                _httpClient.BaseAddress = new Uri(baseUrl);
+            }
+            public async Task RefundAsync(string token, int orderId, decimal amount)
+            {
+                var response = await _httpClient.PostAsync(
+                    "/acceptance/void_refund/refund",
+                    new StringContent(
+                        JsonSerializer.Serialize(new
+                        {
+                            auth_token = token,
+                            order_id = orderId,
+                            amount_cents = (int)(amount * 100)
+                        }),
+                        Encoding.UTF8,
+                        "application/json"));
+
+                if (!response.IsSuccessStatusCode)
+                    throw new ApplicationException(await response.Content.ReadAsStringAsync());
             }
 
-            var jsonString = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(jsonString);
-
-            var token = doc.RootElement.GetProperty("token").GetString();
-            return token ?? throw new ApplicationException("Token was null in Paymob response");
-        }
-
-        public async Task<int> CreateOrderAsync(string token, decimal totalPrice)
-        {
-            var requestBody = new
+            public async Task<string> GetTokenAsync()
             {
-                auth_token = token,
-                delivery_needed = false,
-                amount_cents = (int)(totalPrice * 100),
-                currency = _options.Currency,
-                items = Array.Empty<object>()
-            };
+                var response = await _httpClient.PostAsync(
+                    "/auth/tokens",
+                    new StringContent(
+                        JsonSerializer.Serialize(new { api_key = _apiKey }),
+                        Encoding.UTF8,
+                        "application/json"));
 
-            var response = await _httpClient.PostAsJsonAsync("/Payment/CreatePayment", requestBody);
+                var body = await response.Content.ReadAsStringAsync();
 
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new ApplicationException($"Failed to create Paymob order. Status: {response.StatusCode}, Error: {errorContent}");
-            }
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(jsonString);
-
-            return doc.RootElement.GetProperty("id").GetInt32();
-        }
-
-        public async Task<string> GetPaymentKeyAsync(
-            string token,
-            int orderId,
-            CreatePaymentRequest paymentRequest,
-            decimal totalPrice)
-        {
-            var requestBody = new
-            {
-                auth_token = token,
-                amount_cents = (int)(totalPrice * 100),
-                expiration = 3600, // Token expires in 1 hour
-                order_id = orderId,
-                currency = _options.Currency,
-                integration_id = _options.IntegrationId,
-                billing_data = new
+                if (!response.IsSuccessStatusCode)
                 {
-                    first_name = paymentRequest.FirstName ?? "User",
-                    last_name = paymentRequest.LastName ?? "Customer",
-                    email = paymentRequest.Email ?? "user@example.com",
-                    phone_number = paymentRequest.PhoneNumber ?? "01000000000",
-                    apartment = "NA",
-                    floor = "NA",
-                    street = "NA",
-                    building = "NA",
-                    shipping_method = "NA",
-                    postal_code = "NA",
-                    city = "NA",
-                    country = "EGP",
-                    state = "NA"
+                    _logger.LogError(
+                        "Paymob API Error | StatusCode: {StatusCode} | Response: {Body}",
+                        response.StatusCode,
+                        body
+                    );
+                    throw new ApplicationException(
+                        $"Paymob API failed. StatusCode: {(int)response.StatusCode} - {response.StatusCode}. Response: {body}"
+                    );
                 }
-            };
 
-            var response = await _httpClient.PostAsJsonAsync("/acceptance/payment_keys", requestBody);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new ApplicationException($"Failed to get payment key. Status: {response.StatusCode}, Error: {errorContent}");
+                var result = JsonSerializer.Deserialize<PaymobTokenResponse>(body);
+                return result?.Token
+                       ?? throw new ApplicationException("Paymob token missing");
             }
 
-            var jsonString = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(jsonString);
-
-            var paymentKey = doc.RootElement.GetProperty("token").GetString();
-            return paymentKey ?? throw new ApplicationException("Payment key was null in Paymob response");
-        }
-
-        public async Task<PaymentResponse> InitiatePaymentAsync(CreatePaymentRequest request)
-        {
-            // Step 1: Get authentication token
-            var authToken = await GetTokenAsync();
-
-            // Step 2: Create order
-            var orderId = await CreateOrderAsync(authToken, request.Amount);
-
-            // Step 3: Get payment key
-            var paymentKey = await GetPaymentKeyAsync(authToken, orderId, request, request.Amount);
-
-            // Step 4: Construct payment URL (for iframe/redirect)
-            var paymentUrl = $"https://accept.paymob.com/api/acceptance/iframes/{_options.IntegrationId}?payment_token={paymentKey}";
-
-            return new PaymentResponse
+            public async Task<int> CreateOrderAsync(string token, decimal amount)
             {
-                PaymentKey = paymentKey,
-                OrderId = orderId,
-                PaymentUrl = paymentUrl,
-                Amount = request.Amount
-            };
+                var amountCents = (int)(amount * 100);
+
+                var response = await _httpClient.PostAsync(
+                    "/ecommerce/orders",
+                    new StringContent(
+                        JsonSerializer.Serialize(new
+                        {
+                            auth_token = token,
+                            delivery_needed = false,
+                            amount_cents = amountCents,
+                            currency = _currency,
+                            items = Array.Empty<object>()
+                        }),
+                        Encoding.UTF8,
+                        "application/json"));
+
+                var body = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new ApplicationException(body);
+
+                var result = JsonSerializer.Deserialize<PaymobOrderResponse>(body);
+
+                return result?.Id
+                       ?? throw new ApplicationException("Paymob order id missing");
+            }
+
+            public async Task<string> GetPaymentKeyAsync(
+                string token, int orderId, CreatePaymentRequest dto, decimal amount)
+            {
+                var amountCents = (int)(amount * 100);
+
+                var response = await _httpClient.PostAsync(
+                    "/acceptance/payment_keys",
+                    new StringContent(
+                        JsonSerializer.Serialize(new
+                        {
+                            auth_token = token,
+                            amount_cents = amountCents.ToString(),
+                            expiration = 3600,
+                            order_id = orderId,
+                            billing_data = new
+                            {
+                                apartment = "NA",
+                                email = dto.Email ?? "user@example.com",
+                                floor = "NA",
+                                first_name = dto.FirstName ?? "User",
+                                street = "NA",
+                                building = "NA",
+                                phone_number = dto.PhoneNumber ?? "+20100000000",
+                                shipping_method = "NA",
+                                postal_code = "NA",
+                                city = "NA",
+                                country = "NA",
+                                last_name = dto.LastName ?? "Name",
+                                state = "NA"
+                            },
+                            currency = _currency,
+                            integration_id = _integrationId
+                        }),
+                        Encoding.UTF8,
+                        "application/json"));
+
+                var body = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError(
+                        "Paymob Payment Key Error | StatusCode: {StatusCode} | Response: {Body}",
+                        response.StatusCode,
+                        body
+                    );
+                    throw new ApplicationException(
+                        $"Paymob payment key generation failed. StatusCode: {(int)response.StatusCode} - {response.StatusCode}. Response: {body}"
+                    );
+                }
+
+                var result = JsonSerializer.Deserialize<PaymobPaymentKeyResponse>(body);
+                return result?.Token
+                       ?? throw new ApplicationException("Paymob payment key missing");
+            }
+
+            #region Response Models
+
+            private class PaymobTokenResponse
+            {
+                public string Token { get; set; }
+            }
+
+            private class PaymobOrderResponse
+            {
+                public int Id { get; set; }
+            }
+
+            private class PaymobPaymentKeyResponse
+            {
+                public string Token { get; set; }
+            }
+
+            #endregion
         }
     }
-}
+
+
+       

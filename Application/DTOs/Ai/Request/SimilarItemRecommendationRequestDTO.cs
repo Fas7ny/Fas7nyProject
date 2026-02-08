@@ -16,7 +16,6 @@ namespace Fas7ny.Application.DTOs.Ai.Request
         [Range(1, 20, ErrorMessage = "Number of recommendations must be between 1 and 20")]
         public int NumberOfRecommendations { get; set; } = 5;
 
-        [StringLength(450, ErrorMessage = "User ID cannot exceed 450 characters")]
-        public string? UserId { get; set; }
+
     }
 }
