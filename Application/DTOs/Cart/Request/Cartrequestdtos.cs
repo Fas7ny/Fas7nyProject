@@ -2,11 +2,7 @@
 
 namespace Fas7ny.Application.DTOs.Cart.Request
 {
-    public class CreateCartRequest
-    {
-        [Required(ErrorMessage = "User ID is required")]
-        public string UserId { get; set; }
-    }
+
 
     public class AddCartItemRequest
     {

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fas7ny.Domain.Entities
 {
@@ -7,27 +6,39 @@ namespace Fas7ny.Domain.Entities
     {
         public int Id { get; set; }
 
-        [Required]
-        public int BookingId { get; set; }
-
-        [Required]
+        public int BookingCustomTripId { get; set; }
         public int CityId { get; set; }
+        public int HotelId { get; set; }
 
-        public int? HotelId { get; set; }  // تم تغييره ليكون nullable
+        public string PackageName { get; set; } = null!;
 
-        [Required]
-        public DateTime CheckInDate { get; set; }
+        public string DestinationCity { get; set; } = null!;
 
-        [Required]
-        public DateTime CheckOutDate { get; set; }
+        public int DurationDays { get; set; }
 
-        [ForeignKey("BookingId")]
-        public BookingCustomTrip BookingCustomTrip { get; set; }
+        public decimal PricePerPerson { get; set; }
 
-        [ForeignKey("CityId")]
+        public decimal TotalPrice { get; set; }
+
+        public int AccommodationRating { get; set; }
+
+        public bool IncludeFlights { get; set; }
+
+        public bool IncludeMeals { get; set; }
+
+        public bool IncludeTransportation { get; set; }
+
+        public bool IncludeGuide { get; set; }
+
+        public string? Activities { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // ================= Relations =================
+
+        [ForeignKey(nameof(BookingCustomTripId))]
+        public BookingCustomTrip BookingCustomTrip { get; set; } = null!;
         public City City { get; set; }
-
-        [ForeignKey("HotelId")]  // ربط الـ Hotel بـ HotelId
-        public Hotel? Hotel { get; set; }  // تم تغييره ليكون nullable لأنه مرتبط بـ HotelId nullable
+        public Hotel Hotel { get; set; }
     }
 }

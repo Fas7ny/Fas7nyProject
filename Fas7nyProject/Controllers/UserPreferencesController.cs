@@ -1,8 +1,10 @@
 ﻿using Fas7ny.Application.DTOs.UserPerfernce.Request;
 using Fas7ny.Domain.Entities;
 using Fas7ny.Domain.RepoInterfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Fas7nyProject.Presentation.Controllers
 {
@@ -15,10 +17,13 @@ namespace Fas7nyProject.Presentation.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-
+        [Authorize(Roles = "User")]
         [HttpPost("SavePreferences")]
         public async Task<IActionResult> SavePreferences([FromBody] SavePreferencesDto dto)
         {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
             if (dto == null)
             {
                 return BadRequest(new { message = "Invalid preference data." });
@@ -26,9 +31,8 @@ namespace Fas7nyProject.Presentation.Controllers
             var preference = new UserPreference
             {
                 Budget = dto.Budget,
-                //   CreatedAt = dto.CreatedAt,
                 StayDuration = dto.StayDuration,
-                UserId = dto.UserId,
+                UserId = userId,
                 Username = dto.Username,
                 CategoryPreference = dto.CategoryPreference
             };
@@ -75,6 +79,10 @@ namespace Fas7nyProject.Presentation.Controllers
             await _unitOfWork.SaveChangesAsync();
             return Ok(new { message = "Preferences saved successfully." });
         }
-
+        private string? GetCurrentUserId()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+        }
     }
 }

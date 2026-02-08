@@ -4,8 +4,7 @@ namespace Fas7ny.Application.DTOs.Review.Request
 {
     public class GetReviewsByUserRequest
     {
-        [Required(ErrorMessage = "User ID is required")]
-        public string UserId { get; set; }
+
 
         [Range(1, int.MaxValue, ErrorMessage = "Page number must be greater than 0")]
         public int PageNumber { get; set; } = 1;

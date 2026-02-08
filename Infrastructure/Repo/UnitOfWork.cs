@@ -35,6 +35,7 @@ namespace Fas7ny.Infrastructure.Repo
         private IGenericRepository<Review> _reviews;
         private IGenericRepository<Payment> _payments;
         private IGenericRepository<BookingCustomTrip> _bookingCustomTrip;
+        private IGenericRepository<BookingCustomTripDetail> _bookingCustomTripDetail;
         private IGenericRepository<UserPreference> _userPerfernce;
 
 
@@ -110,12 +111,17 @@ namespace Fas7ny.Infrastructure.Repo
         public IGenericRepository<Category> Categories =>
             _categories ??= new GenericRepository<Category>(_context);
 
-        public IGenericRepository<Payment> Payments => throw new NotImplementedException();
+        public IGenericRepository<Payment> Payments => _payments ??= new GenericRepository<Payment>(_context);
 
         public IGenericRepository<BookingCustomTrip> BookingCustomTrips =>
             _bookingCustomTrip ??= new GenericRepository<BookingCustomTrip>(_context);
 
-        public IGenericRepository<UserPreference> UserPreferences => _userPerfernce ??= new GenericRepository<UserPreference>(_context);
+        public IGenericRepository<UserPreference> UserPreferences => _userPerfernce ??=
+            new GenericRepository<UserPreference>(_context);
+
+        public IGenericRepository<BookingCustomTripDetail> BookingCustomTripDetail
+            => _bookingCustomTripDetail ??= new GenericRepository<BookingCustomTripDetail>(_context);
+
 
         // Generic Repository Access
         public IGenericRepository<T> Repository<T>() where T : class

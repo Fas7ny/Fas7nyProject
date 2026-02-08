@@ -4,9 +4,7 @@ namespace Fas7ny.Application.DTOs.Ai.Request
 {
     public class RecommendationRequestDTO
     {
-        [Required(ErrorMessage = "User ID is required")]
-        [StringLength(450, ErrorMessage = "User ID cannot exceed 450 characters")]
-        public string UserId { get; set; }
+
 
         [Required(ErrorMessage = "Recommendation type is required")]
         [RegularExpression("^(Destination|Package|Hotel|Restaurant|Activity|Similar)$",

@@ -1,5 +1,4 @@
-﻿using Fas7ny.Application.DTOs.City.Request;
-using Fas7ny.Application.DTOs.Resturant.Request;
+﻿using Fas7ny.Application.DTOs.Resturant.Request;
 using Fas7ny.Application.DTOs.Resturant.Response;
 using Fas7ny.Application.Options;
 using Fas7ny.Application.ServiceInterfaces;
@@ -23,99 +22,114 @@ namespace Fas7nyProject.Presentation.Controllers
             _fileService = fileService;
         }
 
+        #region CRUD
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(
-            [FromForm] CreateCityRequestDTO dto,
-             IFormFile? image)
+            [FromForm] CreateRestaurantRequestDTO dto,
+            IFormFile? image)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+
+
             string? imagePath = null;
-
             if (image != null)
-                imagePath = await _fileService.SaveFileAsync(image, "City");
+                imagePath = await _fileService.SaveFileAsync(image, "restaurant");
 
-            var resturant = new Restaurant
+            var restaurant = new Restaurant
             {
                 Name = dto.Name,
-                Description = dto.Description,
-                address = dto.address,
+                address = dto.Address,
                 CityId = dto.CityId,
-                Cuisine = dto.Cuisine,
-                PriceRange = dto.priceRanage
-
-
+                Cuisine = dto.CuisineType,
+                Description = dto.description,
+                CategoryId = dto.CategoryId,
+                imageUrl = imagePath
             };
 
-            await _unitOfWork.Restaurants.AddAsync(resturant);
+            await _unitOfWork.Restaurants.AddAsync(restaurant);
             await _unitOfWork.SaveChangesAsync();
+
+            // ✅ Load City before mapping
+            var createdRestaurant =
+                await _unitOfWork.Restaurants.GetByIdWithIncludesAsync(
+                    restaurant.Id,
+                    r => r.City
+                );
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = resturant.Id },
-                MapToDto(resturant)
+                new { id = restaurant.Id },
+                MapToDto(createdRestaurant!)
             );
         }
-
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             if (id <= 0)
-                return BadRequest("Invalid resturant id");
+                return BadRequest("Invalid restaurant id");
 
-            var resturant = await _unitOfWork.Restaurants.GetByIdAsync(id);
-            if (resturant == null)
-                return NotFound($"resturant with id {id} not found");
+            var restaurant =
+                await _unitOfWork.Restaurants.GetByIdWithIncludesAsync(
+                    id,
+                    r => r.City
+                );
 
-            return Ok(MapToDto(resturant));
+            if (restaurant == null)
+                return NotFound($"Restaurant with id {id} not found");
+
+            return Ok(MapToDto(restaurant));
         }
-
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateRestaurantRequestDTO dto)
+        public async Task<IActionResult> Update(
+            int id,
+            [FromBody] UpdateRestaurantRequestDTO dto)
         {
             if (id <= 0)
-                return BadRequest("Invalid resturant id");
+                return BadRequest("Invalid restaurant id");
 
-            var resturant = await _unitOfWork.Restaurants.GetByIdAsync(id);
-            if (resturant == null)
-                return NotFound($"resturant with id {id} not found");
+            var restaurant =
+                await _unitOfWork.Restaurants.GetByIdWithIncludesAsync(
+                    id,
+                    r => r.City
+                );
 
-            resturant.Name = dto.Name;
-            resturant.Description = dto.Description;
-            resturant.PriceRange = dto.PriceRange;
-            resturant.address = dto.Address;
+            if (restaurant == null)
+                return NotFound($"Restaurant with id {id} not found");
 
+            restaurant.Name = dto.Name;
+            restaurant.Description = dto.Description;
+            restaurant.PriceRange = dto.PriceRange;
+            restaurant.address = dto.Address;
 
-            await _unitOfWork.Restaurants.UpdateAsync(resturant);
+            await _unitOfWork.Restaurants.UpdateAsync(restaurant);
             await _unitOfWork.SaveChangesAsync();
 
-            return Ok(MapToDto(resturant));
+            return Ok(MapToDto(restaurant));
         }
-
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0)
-                return BadRequest("Invalid resturant id");
+                return BadRequest("Invalid restaurant id");
 
-            var resturant = await _unitOfWork.Restaurants.GetByIdAsync(id);
-            if (resturant == null)
-                return NotFound($"resturant with id {id} not found");
+            var restaurant = await _unitOfWork.Restaurants.GetByIdAsync(id);
+            if (restaurant == null)
+                return NotFound($"Restaurant with id {id} not found");
 
-            await _unitOfWork.Restaurants.DeleteAsync(resturant);
+            await _unitOfWork.Restaurants.DeleteAsync(restaurant);
             await _unitOfWork.SaveChangesAsync();
 
             return NoContent();
         }
-
 
         [HttpGet]
         public async Task<IActionResult> GetAll(
@@ -127,8 +141,13 @@ namespace Fas7nyProject.Presentation.Controllers
                 if (page <= 0 || pageSize <= 0)
                     return BadRequest("Invalid pagination values");
 
-                var (resturants, totalCount) =
-                    await _unitOfWork.Restaurants.GetPagedAsync(page.Value, pageSize.Value);
+                var (restaurants, totalCount) =
+                    await _unitOfWork.Restaurants
+                        .GetPagedWithIncludesAsync(
+                            page.Value,
+                            pageSize.Value,
+                            r => r.City
+                        );
 
                 return Ok(new
                 {
@@ -136,16 +155,18 @@ namespace Fas7nyProject.Presentation.Controllers
                     pageSize,
                     totalCount,
                     totalPages = (int)Math.Ceiling(totalCount / (double)pageSize.Value),
-                    items = resturants.Select(MapToDto)
+                    items = restaurants.Select(MapToDto)
                 });
             }
 
-            var allResturants = await _unitOfWork.Restaurants.GetAllAsync();
-            return Ok(allResturants.Select(MapToDto));
+            var allRestaurants =
+                await _unitOfWork.Restaurants.GetAllWithIncludesAsync(r => r.City);
+
+            return Ok(allRestaurants.Select(MapToDto));
         }
 
-        [HttpGet("cities/{cityId:int}/resturants")]
-        public async Task<IActionResult> GetActivitiesByCityId(int cityId)
+        [HttpGet("cities/{cityId:int}/restaurants")]
+        public async Task<IActionResult> GetRestaurantsByCityId(int cityId)
         {
             if (cityId <= 0)
                 return BadRequest("Invalid city ID");
@@ -154,27 +175,32 @@ namespace Fas7nyProject.Presentation.Controllers
             if (city == null)
                 return NotFound("City not found");
 
-            // Get all resturats and filter by cityId
-            var allResturants = await _unitOfWork.Restaurants.GetAllAsync();
-            var cityResturants = allResturants.Where(a => a.CityId == cityId).ToList();
+            var restaurants =
+            await _unitOfWork.Restaurants.FindWithIncludesAsync(
+                r => r.CityId == cityId,
+                r => r.City
+            );
 
-            return Ok(cityResturants);
+            return Ok(restaurants.Select(MapToDto));
         }
 
-        // MAPPER
+        #endregion
+
+        #region Mapper
+
         private static RestaurantResponseDTO MapToDto(Restaurant restaurant) => new()
         {
             Id = restaurant.Id,
             Name = restaurant.Name,
             Address = restaurant.address,
             CityId = restaurant.CityId,
-            CityName = restaurant.City.Name,
+            CityName = restaurant.City?.Name,
             ImageUrl = ImageUrlHelper.BuildImageUrl(
-              "http://Fas7ny.runasp.net",
-             "resturant",
-                  restaurant.imageUrl)
-
-
+                "http://Fas7ny.runasp.net",
+                "restaurant",
+                restaurant.imageUrl)
         };
+
+        #endregion
     }
 }

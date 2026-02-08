@@ -40,18 +40,15 @@ namespace Fas7ny.Infrastructure.Migrations
                         .HasColumnName("cost");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("image_url");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
-
-                    b.Property<string>("PictureUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -162,9 +159,8 @@ namespace Fas7ny.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BookingItemId")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int?>("BookingItemId")
+                        .HasColumnType("integer")
                         .HasColumnName("booking_item_id");
 
                     b.Property<string>("BookingType")
@@ -177,11 +173,11 @@ namespace Fas7ny.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("end_date");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("start_date");
 
                     b.Property<string>("Status")
@@ -219,30 +215,41 @@ namespace Fas7ny.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("BookingDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("DestinationCity")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("PhoneNumber")
+                    b.Property<int>("NumberOfTravelers")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PaymentId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PaymentId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("BookingCustomTrips");
                 });
@@ -255,30 +262,62 @@ namespace Fas7ny.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BookingId")
+                    b.Property<int>("AccommodationRating")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("CheckInDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("Activities")
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("CheckOutDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int>("BookingCustomTripId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("CityId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("HotelId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DestinationCity")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DurationDays")
                         .HasColumnType("integer");
+
+                    b.Property<int>("HotelId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IncludeFlights")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IncludeGuide")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IncludeMeals")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IncludeTransportation")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PackageName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("PricePerPerson")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookingId");
+                    b.HasIndex("BookingCustomTripId");
 
                     b.HasIndex("CityId");
 
                     b.HasIndex("HotelId");
 
-                    b.ToTable("BookingCustomTripDetails");
+                    b.ToTable("BookingCustomTripDetail");
                 });
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.CartItems", b =>
@@ -302,9 +341,6 @@ namespace Fas7ny.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("price");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Quantity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -314,8 +350,6 @@ namespace Fas7ny.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");
-
-                    b.HasIndex("ProductId");
 
                     b.HasIndex("CartId", "BookingId")
                         .IsUnique()
@@ -335,12 +369,12 @@ namespace Fas7ny.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UserId")
@@ -1596,6 +1630,49 @@ namespace Fas7ny.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Fas7ny.Domain.Entities.Destination", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("city_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId")
+                        .HasDatabaseName("ix_destinations_city_id");
+
+                    b.ToTable("destinations", (string)null);
+                });
+
             modelBuilder.Entity("Fas7ny.Domain.Entities.Fas7ny.Domain.Entities.Country", b =>
                 {
                     b.Property<int>("Id")
@@ -1859,9 +1936,6 @@ namespace Fas7ny.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("booking_id");
 
-                    b.Property<int>("CustomTripBookingId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("timestamp")
                         .HasColumnName("payment_date");
@@ -1871,6 +1945,13 @@ namespace Fas7ny.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("payment_method");
+
+                    b.Property<string>("PaymentUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PaymobOrderId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -2013,7 +2094,7 @@ namespace Fas7ny.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
@@ -2207,7 +2288,7 @@ namespace Fas7ny.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
@@ -2416,11 +2497,28 @@ namespace Fas7ny.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Fas7ny.Domain.Entities.BookingCustomTrip", b =>
+                {
+                    b.HasOne("Fas7ny.Domain.Entities.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId");
+
+                    b.HasOne("Fas7ny.Domain.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Payment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Fas7ny.Domain.Entities.BookingCustomTripDetail", b =>
                 {
                     b.HasOne("Fas7ny.Domain.Entities.BookingCustomTrip", "BookingCustomTrip")
-                        .WithMany("BookingCustomTripDetail")
-                        .HasForeignKey("BookingId")
+                        .WithMany()
+                        .HasForeignKey("BookingCustomTripId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2433,7 +2531,8 @@ namespace Fas7ny.Infrastructure.Migrations
                     b.HasOne("Fas7ny.Domain.Entities.Hotel", "Hotel")
                         .WithMany()
                         .HasForeignKey("HotelId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("BookingCustomTrip");
 
@@ -2458,17 +2557,9 @@ namespace Fas7ny.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_cart_items_carts");
 
-                    b.HasOne("Fas7ny.Domain.Entities.Booking", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Booking");
 
                     b.Navigation("Cart");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.Carts", b =>
@@ -2505,6 +2596,18 @@ namespace Fas7ny.Infrastructure.Migrations
                         .HasConstraintName("fk_cities_countries");
 
                     b.Navigation("Country");
+                });
+
+            modelBuilder.Entity("Fas7ny.Domain.Entities.Destination", b =>
+                {
+                    b.HasOne("Fas7ny.Domain.Entities.City", "City")
+                        .WithMany("Destinations")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_destinations_cities");
+
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("Fas7ny.Domain.Entities.Hotel", b =>
@@ -2824,11 +2927,6 @@ namespace Fas7ny.Infrastructure.Migrations
                     b.Navigation("Payment");
                 });
 
-            modelBuilder.Entity("Fas7ny.Domain.Entities.BookingCustomTrip", b =>
-                {
-                    b.Navigation("BookingCustomTripDetail");
-                });
-
             modelBuilder.Entity("Fas7ny.Domain.Entities.Carts", b =>
                 {
                     b.Navigation("CartItems");
@@ -2848,6 +2946,8 @@ namespace Fas7ny.Infrastructure.Migrations
             modelBuilder.Entity("Fas7ny.Domain.Entities.City", b =>
                 {
                     b.Navigation("Activities");
+
+                    b.Navigation("Destinations");
 
                     b.Navigation("Hotels");
 
