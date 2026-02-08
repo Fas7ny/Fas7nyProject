@@ -17,6 +17,9 @@ namespace Fas7nyProject.Presentation.Controllers
         }
 
 
+
+        #region CRUD
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> create([FromBody] CreateCountryDto dto)
@@ -111,6 +114,8 @@ namespace Fas7nyProject.Presentation.Controllers
             return Ok(new { message = "Activity deleted successfully" });
 
         }
+
+        #endregion
 
 
         [HttpGet("country/{countryId:int}/city")]

@@ -36,13 +36,12 @@ namespace TourismApp.Data
         public DbSet<Carts> Carts { get; set; }
         public DbSet<CartItems> CartItems { get; set; }
         public DbSet<BookingCustomTrip> BookingCustomTrips { get; set; }
-        public DbSet<BookingCustomTripDetail> BookingCustomTripDetails { get; set; }
+        public DbSet<Destination> destinations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // ===== Identity Tables Configuration =====
 
             // IdentityRole
             modelBuilder.Entity<IdentityRole>(entity =>
@@ -90,6 +89,35 @@ namespace TourismApp.Data
                 entity.Property(e => e.ClaimType).HasColumnName("claim_type");
                 entity.Property(e => e.ClaimValue).HasColumnName("claim_value");
                 entity.HasIndex(e => e.UserId).HasDatabaseName("ix_user_claims_user_id");
+            });
+
+
+
+
+            //destination 
+            modelBuilder.Entity<Destination>(entity =>
+            {
+                entity.ToTable("destinations");
+
+                entity.HasKey(d => d.Id);
+
+                entity.Property(d => d.Name)
+                      .HasColumnName("name")
+                      .HasMaxLength(200)
+                      .IsRequired();
+
+                entity.Property(d => d.CityId)
+                      .HasColumnName("city_id")
+                      .IsRequired();
+
+                entity.HasOne(d => d.City)
+                      .WithMany(c => c.Destinations)
+                      .HasForeignKey(d => d.CityId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .HasConstraintName("fk_destinations_cities");
+
+                entity.HasIndex(d => d.CityId)
+                      .HasDatabaseName("ix_destinations_city_id");
             });
 
             // IdentityRoleClaim
@@ -176,7 +204,7 @@ namespace TourismApp.Data
                 entity.Property(e => e.Name).HasColumnName("name").HasMaxLength(100).IsRequired();
                 entity.Property(e => e.CountryId).HasColumnName("country_id").IsRequired();
                 entity.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
-                entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(500);
+                entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(500).IsRequired(false);
                 entity.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
 
                 entity.HasOne(e => e.Country)
@@ -195,6 +223,7 @@ namespace TourismApp.Data
                 entity.Property(e => e.Name).HasColumnName("name").HasMaxLength(200).IsRequired();
                 entity.Property(e => e.Cost).HasColumnName("cost").HasColumnType("decimal(18,2)").IsRequired();
                 entity.Property(e => e.CityId).HasColumnName("city_id").IsRequired();
+                entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(500).IsRequired(false);
 
                 entity.HasOne(e => e.City)
                     .WithMany(c => c.Activities)
@@ -215,7 +244,7 @@ namespace TourismApp.Data
                 entity.Property(e => e.Address).HasColumnName("address").HasMaxLength(500).IsRequired();
                 entity.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
                 entity.Property(e => e.PricePerNight).HasColumnName("price_per_night").HasColumnType("decimal(18,2)").IsRequired();
-                entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(500);
+                entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(500).IsRequired(false);
                 entity.Property(e => e.CityId).HasColumnName("city_id").IsRequired();
 
                 entity.HasOne(e => e.City)
@@ -283,7 +312,7 @@ namespace TourismApp.Data
                 entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
                 entity.Property(e => e.Name).HasColumnName("name").HasMaxLength(200).IsRequired();
                 entity.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
-                entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(500);
+                entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(500).IsRequired(false);
                 entity.Property(e => e.OpeningHours).HasColumnName("opening_hours").HasMaxLength(200);
                 entity.Property(e => e.EntryFee).HasColumnName("entry_fee").HasColumnType("decimal(18,2)").IsRequired();
                 entity.Property(e => e.CityId).HasColumnName("city_id").IsRequired();
@@ -311,7 +340,7 @@ namespace TourismApp.Data
                 entity.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
                 entity.Property(e => e.Price).HasColumnName("price").HasColumnType("decimal(18,2)").IsRequired();
                 entity.Property(e => e.DurationDays).HasColumnName("duration_days").IsRequired();
-                entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(500);
+                entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(500).IsRequired(false);
                 entity.Property(e => e.CityId).HasColumnName("city_id").IsRequired();
                 entity.Property(e => e.HotelId).HasColumnName("hotel_id").IsRequired();
 
@@ -366,9 +395,9 @@ namespace TourismApp.Data
                 entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
                 entity.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
                 entity.Property(e => e.BookingType).HasColumnName("booking_type").HasMaxLength(50).IsRequired();
-                entity.Property(e => e.BookingItemId).HasColumnName("booking_item_id").IsRequired();
-                entity.Property(e => e.StartDate).HasColumnName("start_date").HasColumnType("timestamp").IsRequired();
-                entity.Property(e => e.EndDate).HasColumnName("end_date").HasColumnType("timestamp").IsRequired();
+                entity.Property(e => e.BookingItemId).HasColumnName("booking_item_id").IsRequired(false);
+                entity.Property(e => e.StartDate).HasColumnName("start_date").HasColumnType("timestamp with time zone").IsRequired();
+                entity.Property(e => e.EndDate).HasColumnName("end_date").HasColumnType("timestamp with time zone").IsRequired();
                 entity.Property(e => e.TotalPrice).HasColumnName("total_price").HasColumnType("decimal(18,2)").IsRequired();
                 entity.Property(e => e.Status).HasColumnName("status").HasMaxLength(50).IsRequired().HasDefaultValue("Pending");
 
@@ -465,7 +494,7 @@ namespace TourismApp.Data
                 entity.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
                 entity.Property(e => e.Rating).HasColumnName("rating").IsRequired();
                 entity.Property(e => e.Comment).HasColumnName("comment").HasColumnType("text");
-                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp").HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp with time zone").HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.HasOne(e => e.Package)
                     .WithMany(p => p.Reviews)
@@ -515,7 +544,7 @@ namespace TourismApp.Data
                 entity.Property(e => e.StayDuration).HasColumnName("stay_duration").IsRequired();
                 entity.Property(e => e.Budget).HasColumnName("budget").HasColumnType("decimal(18,2)").IsRequired();
                 entity.Property(e => e.CategoryPreference).HasColumnName("category_preference").HasMaxLength(50).IsRequired();
-                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp").HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp with time zone").HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.UserPreferences)
@@ -533,8 +562,8 @@ namespace TourismApp.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
                 entity.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
-                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp").HasDefaultValueSql("CURRENT_TIMESTAMP");
-                entity.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamp");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasColumnType("timestamp with time zone").HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamp with time zone");
 
                 entity.HasOne(e => e.User)
                     .WithOne(u => u.Cart)

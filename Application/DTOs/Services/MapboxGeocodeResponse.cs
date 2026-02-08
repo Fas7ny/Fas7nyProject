@@ -15,5 +15,7 @@ namespace Fas7ny.Application.DTOs.Services
 
         [JsonPropertyName("center")]
         public double[] Center { get; set; }
+        public object Text { get; set; }
+        public object PlaceType { get; set; }
     }
 }

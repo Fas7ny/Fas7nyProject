@@ -15,14 +15,11 @@ namespace Fas7nyProject.Presentation.Controllers
     {
 
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IConfiguration _configuration;
         private readonly IJwtTokenService _jwtTokenService;
-        public AccountController(IJwtTokenService jwtTokenService, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        public AccountController(IJwtTokenService jwtTokenService, UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
-            _configuration = configuration;
+
             _jwtTokenService = jwtTokenService;
 
         }
@@ -72,6 +69,7 @@ namespace Fas7nyProject.Presentation.Controllers
 
             });
         }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserLoginRequestDTO userLoginRequestDTO)
         {
@@ -230,6 +228,11 @@ namespace Fas7nyProject.Presentation.Controllers
 
             return BadRequest(new { message = "Failed to assign role", errors = result.Errors });
         }
+
+
+
+
+
 
     }
 }

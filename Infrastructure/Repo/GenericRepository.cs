@@ -16,6 +16,46 @@ namespace Fas7ny.Domain.Repo
             _dbSet = _context.Set<T>();
         }
 
+        public async Task<IEnumerable<T>> FindAllAsync(
+    Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet
+                .Where(predicate)
+                .ToListAsync();
+        }
+
+        public async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedWithIncludesAsync(
+    int page,
+    int pageSize,
+    params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+                query = query.Include(include);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        public async Task<IEnumerable<T>> FindWithIncludesAsync(
+    Expression<Func<T, bool>> predicate,
+    params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+                query = query.Include(include);
+
+            return await query.Where(predicate).ToListAsync();
+        }
+
         public async Task<T> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
@@ -151,5 +191,10 @@ namespace Fas7ny.Domain.Repo
 
             return (items, totalCount);
         }
+        public IQueryable<T> Query()
+        {
+            return _dbSet.AsNoTracking();
+        }
+
     }
 }

@@ -24,6 +24,8 @@ namespace Fas7nyProject.Presentation.Controllers
         }
 
 
+        #region CRUD
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(
@@ -159,6 +161,8 @@ namespace Fas7nyProject.Presentation.Controllers
             return Ok(cityTouristPlace);
         }
 
+
+        #endregion
         // MAPPER
         private static TouristPlaceResponseDTO MapToDto(TouristPlace place) => new()
         {

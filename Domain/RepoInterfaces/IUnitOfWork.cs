@@ -29,6 +29,7 @@ namespace Fas7ny.Domain.RepoInterfaces
         IGenericRepository<Payment> Payments { get; }
         IGenericRepository<BookingCustomTrip> BookingCustomTrips { get; }
         IGenericRepository<UserPreference> UserPreferences { get; }
+        IGenericRepository<BookingCustomTripDetail> BookingCustomTripDetail { get; }
 
 
         // Generic method to get any repository

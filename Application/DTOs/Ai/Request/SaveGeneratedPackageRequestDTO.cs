@@ -5,8 +5,7 @@ namespace Fas7ny.Application.DTOs.Ai.Request
 {
     public class SaveGeneratedPackageRequestDTO
     {
-        [Required(ErrorMessage = "User ID is required")]
-        public string UserId { get; set; }
+
 
         [Required(ErrorMessage = "Package name is required")]
         [StringLength(200, MinimumLength = 5, ErrorMessage = "Package name must be between 5 and 200 characters")]

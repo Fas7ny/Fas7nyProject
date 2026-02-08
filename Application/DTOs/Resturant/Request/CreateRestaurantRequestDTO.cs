@@ -4,6 +4,8 @@ namespace Fas7ny.Application.DTOs.Resturant.Request
 {
     public class CreateRestaurantRequestDTO
     {
+        public string description;
+
         [Required(ErrorMessage = "Restaurant name is required")]
         [StringLength(100, ErrorMessage = "Restaurant name cannot exceed 100 characters")]
         public string Name { get; set; }
@@ -25,7 +27,8 @@ namespace Fas7ny.Application.DTOs.Resturant.Request
 
         [Phone(ErrorMessage = "Invalid phone number format")]
         [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
-        public string PhoneNumber { get; set; }
+        public int PhoneNumber { get; set; }
+        public int CategoryId { get; set; }
     }
 
 }

@@ -50,6 +50,7 @@ namespace Fas7nyProject.Presentation.Controllers
 
         #endregion
 
+        #region CRUD
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateActivityRequestDTO dto)
@@ -62,6 +63,7 @@ namespace Fas7nyProject.Presentation.Controllers
                 dto.Name,
                 dto.Price,
                 dto.CityId
+
 
                 );
 
@@ -76,12 +78,13 @@ namespace Fas7nyProject.Presentation.Controllers
                     activity.Id,
                     activity.Name,
                     Price = activity.Cost,
-                    activity.CityId
+                    activity.CityId,
+                    activity.ImageUrl
                 });
         }
 
 
-        [AllowAnonymous]
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -98,13 +101,12 @@ namespace Fas7nyProject.Presentation.Controllers
                 PictureUrl = ImageUrlHelper.BuildImageUrl(
         "http://Fas7ny.runasp.net",
         "Activity",
-        activity.PictureUrl
+        activity.ImageUrl
               )
             });
         }
 
 
-        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -125,26 +127,19 @@ namespace Fas7nyProject.Presentation.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateActivityRequestDTO dto, IFormFile? image)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateActivityRequestDTO dto)
         {
+            if (id <= 0) return BadRequest("id is not valid");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             var activity = await _unitOfWork.Activities.GetByIdAsync(id);
 
-            if (image != null)
-            {
-                if (!string.IsNullOrEmpty(activity.ImageUrl))
-                {
-                    await _fileService.DeleteFileAsync(activity.ImageUrl);
-                }
-                activity.ImageUrl = await _fileService.SaveFileAsync(image, "Activity");
 
-            }
 
             if (activity == null)
                 return NotFound(new { message = "Activity not found" });
 
-            activity.Update(dto.Name, dto.Price, dto.CityId);
+            await _unitOfWork.Activities.UpdateAsync(activity);
             await _unitOfWork.SaveChangesAsync();
 
             return Ok(new
@@ -195,7 +190,7 @@ namespace Fas7nyProject.Presentation.Controllers
                 PictureUrl = ImageUrlHelper.BuildImageUrl(
                        "http://Fas7ny.runasp.net",
                         "Activity",
-                        r.PictureUrl
+                        r.ImageUrl
                                )
             }).ToList();
 
@@ -204,6 +199,8 @@ namespace Fas7nyProject.Presentation.Controllers
 
 
         }
+
+        #endregion
 
     }
 }

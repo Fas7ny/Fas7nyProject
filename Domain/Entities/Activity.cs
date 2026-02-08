@@ -11,7 +11,6 @@
 
         // Navigation property
         public virtual City City { get; set; } = null!;
-        public string PictureUrl { get; set; }
 
         // Parameterless constructor for EF Core
         private Activity() { }
@@ -25,12 +24,12 @@
         }
 
         // Update method
-        public void Update(string name, decimal cost, int cityId)
-        {
-            Name = name;
-            Cost = cost;
-            CityId = cityId;
-        }
+        //public void Update(string name, decimal cost, int cityId)
+        //{
+        //    Name = name;
+        //    Cost = cost;
+        //    CityId = cityId;
+        //}
     }
 
 

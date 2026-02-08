@@ -7,8 +7,7 @@ namespace Fas7ny.Application.DTOs.Ai.Request
         [Required(ErrorMessage = "Package ID is required")]
         public int PackageId { get; set; }
 
-        [Required(ErrorMessage = "User ID is required")]
-        public string UserId { get; set; }
+
 
         [StringLength(1000, ErrorMessage = "Feedback cannot exceed 1000 characters")]
         public string? Feedback { get; set; }

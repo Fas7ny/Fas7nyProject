@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fas7ny.Domain.Entities
 {
@@ -6,26 +6,27 @@ namespace Fas7ny.Domain.Entities
     {
         public int Id { get; set; }
 
-        [Required]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = null!;
 
-        public DateTime BookingDate { get; set; }
+        public string DestinationCity { get; set; } = null!;
 
-        public double TotalPrice { get; set; }
+        public DateTime StartDate { get; set; }
 
+        public DateTime EndDate { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string FullName { get; set; }
+        public int NumberOfTravelers { get; set; }
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        public decimal TotalPrice { get; set; }
 
-        [Required]
-        [Phone] // التحقق من صحة رقم الهاتف
-        public string PhoneNumber { get; set; }
+        public string Status { get; set; } = "Pending";
 
-        public ICollection<BookingCustomTripDetail> BookingCustomTripDetail { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // ================= Relations =================
+
+        [ForeignKey(nameof(UserId))]
+        public ApplicationUser User { get; set; } = null!;
+
+        public Payment? Payment { get; set; }
     }
 }
